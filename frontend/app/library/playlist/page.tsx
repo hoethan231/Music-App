@@ -8,18 +8,21 @@ const PlaylistPage: React.FC = () => {
 
     const tempSongs = [
         {
+            idx:"1",
             title:"fouroclock",
             album:"awesome",
             date:"october",
             length:"1:30"
         },
         {
+            idx:"2",
             title:"cats",
             album:"awesomer",
             date:"november",
             length:"2:30"
         },
         {
+            idx:"3",
             title:"trees",
             album:"disaster",
             date:"frebuaray",
@@ -36,7 +39,7 @@ const PlaylistPage: React.FC = () => {
                     <h2 className='text-[1vw]'>Gymming music!!</h2>
                 </div>
             </div>
-            <div className="min-h-screen w-2/3 flex justify-center items-center">
+            <div className="max-h-screen w-2/3 flex justify-center items-center">
                 <div className='w-full h-[70%] mr-[6vw] flex'>
                     <DataTable columns={columns} data={tempSongs} />
                 </div>
