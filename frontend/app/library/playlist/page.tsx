@@ -40,9 +40,7 @@ const PlaylistPage: React.FC = () => {
                 </div>
             </div>
             <div className="max-h-screen w-2/3 flex justify-center items-center">
-                <div className='w-full h-[70%] mr-[6vw] flex'>
-                    <DataTable columns={columns} data={tempSongs} />
-                </div>
+                <DataTable columns={columns} data={tempSongs} />
             </div>
         </div>
     );
