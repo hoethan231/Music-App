@@ -1,5 +1,16 @@
+"use client";
+
 import Navbar from "@/components/ui/navbar";
+import { usePathname } from "next/navigation";
 import "./globals.css";
+
+export const NavbarWrapper = () => {
+    const pathname = usePathname();
+    const isHomePage = pathname === "/";
+
+    if (isHomePage) return null;
+    return <Navbar />;
+}
 
 export default function RootLayout({
     children,
@@ -9,7 +20,7 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body>
-                <Navbar />
+                <NavbarWrapper />
                 {children}
             </body>
         </html>
