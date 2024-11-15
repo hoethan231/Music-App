@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+import { Skeleton } from "@/components/ui/skeleton"
 import sampleSong from "@/public/fouroclock.jpg";
 import { FaPlayCircle } from "react-icons/fa";
 import { IoPlaySkipBack, IoPlaySkipForward, IoShuffle, IoRepeat } from "react-icons/io5";
@@ -17,6 +18,7 @@ const Navbar: React.FC = () => {
     const token = process.env.NEXT_PUBLIC_ACCESS_TOKEN;
     const [player, setPlayer] = useState<Window['Spotify']['Player'] | null>(null);
     const [device_id, setDeviceId] = useState<string | null>(null);
+    const [isInitializing, setIsInitializing] = useState(true);
 
     useEffect(() => {
         const script = document.createElement("script");
@@ -59,6 +61,7 @@ const Navbar: React.FC = () => {
                         console.error('Spotify API Error:', errorData);
                     } else {
                         console.log('Device activated successfully');
+                        setIsInitializing(false);
                     }
                 } catch (error) {
                     console.error('Error during player initialization:', error);
@@ -155,10 +158,70 @@ const Navbar: React.FC = () => {
         }
     };
 
+    const LoadingState = () => (
+        <>
+            <div className="flex justify-center items-center px-4">
+                <div className="px-3">
+                    <Skeleton className="h-[3vw] w-[3vw] rounded-md" />
+                </div>
+                <div className="w-[10vw] space-y-2">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-3 w-16" />
+                </div>
+            </div>
+            <div className="flex items-center gap-4">
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <Skeleton className="h-10 w-10 rounded-full" />
+            </div>
+            <div className="flex justify-center items-center px-4 invisible">
+                <div className="px-3 h-full">
+                    <img src={sampleSong.src} alt="sample song" className="rounded-md w-[10vh]"/>
+                </div>
+                <div className="w-[10vw]">
+                    <h1 className="font-sm text-md">morning moon</h1>
+                    <h2 className="text-xs text-gray-300">fouroclock</h2>
+                </div>
+            </div>
+        </>
+    );
+
+    const LoadedState = () => (
+        <>
+            <div className="flex justify-center items-center px-4">
+                <div className="px-3 h-full">
+                    <img src={sampleSong.src} alt="sample song" className="rounded-md w-[10vh]"/>
+                </div>
+                <div className="w-[10vw]">
+                    <h1 className="font-sm text-md">morning moon</h1>
+                    <h2 className="text-xs text-gray-300">fouroclock</h2>
+                </div>
+            </div>
+            <div className="flex items-center gap-4">
+                <IoRepeat className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer"/>
+                <IoPlaySkipBack className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer"/>
+                <FaPlayCircle className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer" onClick={playSong}/>
+                <IoPlaySkipForward className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer"/>
+                <IoShuffle className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer"/>
+            </div>
+            <div className="flex justify-center items-center px-4 invisible">
+                <div className="px-3 h-full">
+                    <img src={sampleSong.src} alt="sample song" className="rounded-md w-[10vh]"/>
+                </div>
+                <div className="w-[10vw]">
+                    <h1 className="font-sm text-md">morning moon</h1>
+                    <h2 className="text-xs text-gray-300">fouroclock</h2>
+                </div>
+            </div>
+        </>
+    );
+
     return (
         <nav className="bg-[#171417] text-white p-4 absolute w-screen">
             <div className="container flex items-center mx-auto justify-center">
-                <div className="w-1/3 h-full flex justify-center items-center text-xl">
+                <div className="flex-1 h-full flex justify-center items-center text-xl">
                     <div className="px-14">
                         <a href="#" className="hover:text-gray-400">EXPLORE</a>
                     </div>
@@ -166,34 +229,10 @@ const Navbar: React.FC = () => {
                         <a href="#" className="hover:text-gray-400">LIBRARY</a>
                     </div>
                 </div>
-                <div className="w-1/3 h-full flex items-center justify-center">
-                    <div className="flex justify-center items-center px-4">
-                        <div className="px-3 h-full">
-                            <img src={sampleSong.src} alt="sample song" className="rounded-md w-[10vh]"/>
-                        </div>
-                        <div className='w-[10vw]'>
-                            <h1 className="font-sm text-md">morning moon</h1>
-                            <h2 className="text-xs text-gray-300">fouroclock</h2>
-                        </div>
-                    </div>
-                    <div className=' flex items-center gap-4'>
-                        <IoRepeat className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer"/>
-                        <IoPlaySkipBack className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer"/>
-                        <FaPlayCircle className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer" onClick={playSong}/>
-                        <IoPlaySkipForward className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer"/>
-                        <IoShuffle className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer"/>
-                    </div>
-                    <div className="flex justify-center items-center px-4 invisible">
-                        <div className="px-3 h-full">
-                            <img src={sampleSong.src} alt="sample song" className="rounded-md w-[10vh]"/>
-                        </div>
-                        <div className='w-[10vw]'>
-                            <h1 className="font-sm text-md">morning moon</h1>
-                            <h2 className="text-xs text-gray-300">fouroclock</h2>
-                        </div>
-                    </div>
+                <div className="flex-1 h-full flex items-center justify-center">
+                    {isInitializing ? <LoadingState /> : <LoadedState />}
                 </div>
-                <div className="w-1/3 h-full flex items-center justify-center">
+                <div className="flex-1 h-full flex items-center justify-center">
                     <div className="px-14">
                         <a href="#" className="hover:text-gray-400">COMMUNITY</a>
                     </div>
