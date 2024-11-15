@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Skeleton } from "@/components/ui/skeleton"
 import sampleSong from "@/public/fouroclock.jpg";
-import { FaPlayCircle } from "react-icons/fa";
+import { FaPlayCircle, FaPauseCircle } from "react-icons/fa";
 import { IoPlaySkipBack, IoPlaySkipForward, IoShuffle, IoRepeat } from "react-icons/io5";
 
 declare global {
@@ -19,80 +19,194 @@ const Navbar: React.FC = () => {
     const [player, setPlayer] = useState<Window['Spotify']['Player'] | null>(null);
     const [device_id, setDeviceId] = useState<string | null>(null);
     const [isInitializing, setIsInitializing] = useState(true);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [initializationAttempts, setInitializationAttempts] = useState(0);
+    const MAX_RETRY_ATTEMPTS = 3;
 
-    useEffect(() => {
-        const script = document.createElement("script");
-        script.src = "https://sdk.scdn.co/spotify-player.js";
-        script.async = true;
-    
-        document.body.appendChild(script);
-    
-        window.onSpotifyWebPlaybackSDKReady = async () => {
-            const player = await new window.Spotify.Player({
-                name: 'Web Playback SDK',
-                getOAuthToken: (cb: (token: string) => void) => { if (token) cb(token); },
-                volume: 0.5
+    const initializePlayer = useCallback(async () => {
+        if (!token) {
+            console.error('Access token not available');
+            return;
+        }
+
+        try {
+            const existingScript = document.getElementById('spotify-player');
+            if (existingScript) {
+                document.body.removeChild(existingScript);
+            }
+
+            const script = document.createElement("script");
+            script.id = 'spotify-player';
+            script.src = "https://sdk.scdn.co/spotify-player.js";
+            script.async = true;
+
+            const scriptLoadPromise = new Promise((resolve, reject) => {
+                script.onload = resolve;
+                script.onerror = reject;
             });
-    
-            setPlayer(player);
-    
-            player.addListener('ready', async ({ device_id }: { device_id: string }) => {
-                setDeviceId(device_id);
-                console.log('Ready with Device ID', device_id);
-            
-                try {
-                    await player.connect();
-                    await player.activateElement();
+
+            document.body.appendChild(script);
+            await scriptLoadPromise;
+
+            await new Promise<void>((resolve) => {
+                window.onSpotifyWebPlaybackSDKReady = () => {
+                    resolve();
+                };
+                setTimeout(() => resolve(), 5000);
+            });
+
+            const initPlayer = async () => {
+                const player = new window.Spotify.Player({
+                    name: 'Web Playback SDK',
+                    getOAuthToken: (cb: (token: string) => void) => {
+                        if (token) {
+                            console.log('Providing token to SDK...');
+                            cb(token);
+                        }
+                    },
+                    volume: 0.5
+                });
+
+                player.addListener('ready', async ({ device_id }: { device_id: string }) => {
+                    console.log('Player ready with device ID', device_id);
+                    setDeviceId(device_id);
                     
-                    const response = await fetch('https://api.spotify.com/v1/me/player', {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: JSON.stringify({
-                            device_ids: [device_id],
-                            play: false
-                        })
-                    });
-                    
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        console.error('Spotify API Error:', errorData);
-                    } else {
+                    try {
+                        await player.connect();
+                        await player.activateElement();
+                        
+                        const response = await fetch('https://api.spotify.com/v1/me/player', {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({
+                                device_ids: [device_id],
+                                play: false
+                            })
+                        });
+                        
+                        if (!response.ok) {
+                            throw new Error(`Device activation failed: ${response.status}`);
+                        }
+                        
                         console.log('Device activated successfully');
                         setIsInitializing(false);
+                    } catch (error) {
+                        console.error('Error during device activation:', error);
+                        throw error;
+                    }
+                });
+
+                player.addListener('not_ready', ({ device_id }: { device_id: string }) => {
+                    console.log('Device ID has gone offline', device_id);
+                });
+
+                player.addListener('initialization_error', ({ message }: { message: string }) => {
+                    console.error('Initialization error:', message);
+                    throw new Error(message);
+                });
+
+                player.addListener('authentication_error', ({ message }: { message: string }) => {
+                    console.error('Authentication error:', message);
+                    throw new Error(message);
+                });
+
+                player.addListener('account_error', ({ message }: { message: string }) => {
+                    console.error('Account error:', message);
+                    throw new Error(message);
+                });
+
+                const connected = await player.connect();
+                if (!connected) {
+                    throw new Error('Failed to connect player');
+                }
+
+                return player;
+            };
+
+            let attemptCount = 0;
+            let lastError: Error | null = null;
+
+            while (attemptCount < MAX_RETRY_ATTEMPTS) {
+                try {
+                    const newPlayer = await initPlayer();
+                    setPlayer(newPlayer);
+                    setInitializationAttempts(attemptCount + 1);
+                    return;
+                } catch (error) {
+                    lastError = error as Error;
+                    console.error(`Attempt ${attemptCount + 1} failed:`, error);
+                    attemptCount++;
+                    // Wait before retrying
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            }
+
+            if (lastError) {
+                throw lastError;
+            }
+
+        } catch (error) {
+            console.error('Final initialization error:', error);
+            setIsInitializing(false);
+        }
+    }, [token]);
+
+    useEffect(() => {
+        if (token && !player && initializationAttempts < MAX_RETRY_ATTEMPTS) {
+            initializePlayer();
+        }
+    }, [token, player, initializationAttempts, initializePlayer]);
+
+    useEffect(() => {
+        if (player) {
+            const interval = setInterval(async () => {
+                try {
+                    const state = await player.getCurrentState();
+                    if (!state) {
+                        console.log('No player state, attempting reconnect...');
+                        await player.connect();
                     }
                 } catch (error) {
-                    console.error('Error during player initialization:', error);
+                    console.error('Error checking player state:', error);
+                }
+            }, 5000);
+
+            return () => {
+                clearInterval(interval);
+                player.disconnect();
+            };
+        }
+    }, [player]);
+
+    useEffect(() => {
+        if (player) {
+            player.addListener('player_state_changed', (state: { paused: any; }) => {
+                if (state) {
+                    setIsPlaying(!state.paused);
                 }
             });
-    
-            player.addListener('not_ready', ({ device_id }: { device_id: string }) => {
-                console.log('Device ID has gone offline', device_id);
-            });
-    
-            player.addListener('initialization_error', ({ message }: { message: string }) => {
-                console.error(message);
-            });
-    
-            player.addListener('authentication_error', ({ message }: { message: string }) => {
-                console.error(message);
-            });
-    
-            player.addListener('account_error', ({ message }: { message: string }) => {
-                console.error(message);
-            });
-    
-            await player.connect();
-        };
-    
-        return () => {
-            if (player) {
-                player.disconnect();
-            }
-        };
-    }, [token]);
+
+            const interval = setInterval(async () => {
+                const state = await player.getCurrentState();
+                if (!state) {
+                    try {
+                        await player.connect();
+                        await player.activateElement();
+                    } catch (error) {
+                        console.error('Failed to reconnect player:', error);
+                    }
+                }
+            }, 5000);
+
+            return () => {
+                clearInterval(interval);
+                player.removeListener('player_state_changed');
+            };
+        }
+    }, [player]);
 
     const playSong = async (e: React.MouseEvent) => {
         e.preventDefault();
@@ -158,6 +272,120 @@ const Navbar: React.FC = () => {
         }
     };
 
+    const pauseSong = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        
+        if (!player || !device_id) {
+            console.error('Player or device_id not initialized');
+            return;
+        }
+        
+        try {
+            const state = await player.getCurrentState();
+            if (!state) {
+                console.error('Player state could not be fetched');
+                return;
+            }
+
+            await fetch(`https://api.spotify.com/v1/me/player/pause?device_id=${device_id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            setIsPlaying(false);
+            console.log('Paused!');
+        } catch (error) {
+            console.error('Error during pause:', error);
+            try {
+                await player.connect();
+                await player.activateElement();
+            } catch (reconnectError) {
+                console.error('Failed to reconnect player:', reconnectError);
+            }
+        }
+    };
+
+    const skipSong = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        
+        if (!player || !device_id) {
+            console.error('Player or device_id not initialized');
+            return;
+        }
+        
+        try {
+            const state = await player.getCurrentState();
+            if (!state) {
+                console.error('Player state could not be fetched');
+                return;
+            }
+
+            await fetch(`https://api.spotify.com/v1/me/player/next?device_id=${device_id}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            console.log('Skipped!');
+            setTimeout(() => {
+                player.getCurrentState().then((state: { paused: boolean; }) => {
+                    setIsPlaying(state?.paused === false);
+                });
+            }, 200);
+        } catch (error) {
+            console.error('Error during skip:', error);
+            try {
+                await player.connect();
+                await player.activateElement();
+            } catch (reconnectError) {
+                console.error('Failed to reconnect player:', reconnectError);
+            }
+        }
+    };
+
+    const previousSong = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        
+        if (!player || !device_id) {
+            console.error('Player or device_id not initialized');
+            return;
+        }
+        
+        try {
+            const state = await player.getCurrentState();
+            if (!state) {
+                console.error('Player state could not be fetched');
+                return;
+            }
+
+            await fetch(`https://api.spotify.com/v1/me/player/previous?device_id=${device_id}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            console.log('Previous track!');
+            setTimeout(() => {
+                player.getCurrentState().then((state: { paused: boolean; }) => {
+                    setIsPlaying(state?.paused === false);
+                });
+            }, 200);
+        } catch (error) {
+            console.error('Error during previous track:', error);
+            try {
+                await player.connect();
+                await player.activateElement();
+            } catch (reconnectError) {
+                console.error('Failed to reconnect player:', reconnectError);
+            }
+        }
+    };
+
     const LoadingState = () => (
         <>
             <div className="flex justify-center items-center px-4">
@@ -201,9 +429,12 @@ const Navbar: React.FC = () => {
             </div>
             <div className="flex items-center gap-4">
                 <IoRepeat className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer"/>
-                <IoPlaySkipBack className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer"/>
-                <FaPlayCircle className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer" onClick={playSong}/>
-                <IoPlaySkipForward className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer"/>
+                <IoPlaySkipBack className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer" onClick={previousSong}/> // TODO: Make Work
+                {isPlaying ? (
+                    <FaPauseCircle className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer" onClick={pauseSong}/>
+                    ) : (
+                    <FaPlayCircle className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer" onClick={playSong}/>)} // TODO: Make Work
+                <IoPlaySkipForward className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer" onClick={skipSong}/>
                 <IoShuffle className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer"/>
             </div>
             <div className="flex justify-center items-center px-4 invisible">
