@@ -16,84 +16,144 @@ declare global {
 const Navbar: React.FC = () => {
     const token = process.env.NEXT_PUBLIC_ACCESS_TOKEN;
     const [player, setPlayer] = useState<Window['Spotify']['Player'] | null>(null);
-    // const [token2, setToken2] = useState<string | null>(null);
     const [device_id, setDeviceId] = useState<string | null>(null);
 
     useEffect(() => {
         const script = document.createElement("script");
         script.src = "https://sdk.scdn.co/spotify-player.js";
         script.async = true;
-
+    
         document.body.appendChild(script);
-
-        window.onSpotifyWebPlaybackSDKReady = () => {
-
-            const player = new window.Spotify.Player({
+    
+        window.onSpotifyWebPlaybackSDKReady = async () => {
+            const player = await new window.Spotify.Player({
                 name: 'Web Playback SDK',
                 getOAuthToken: (cb: (token: string) => void) => { if (token) cb(token); },
                 volume: 0.5
             });
-
+    
             setPlayer(player);
-
-            player.addListener('ready', ({ device_id }: { device_id: string }) => {
+    
+            player.addListener('ready', async ({ device_id }: { device_id: string }) => {
                 setDeviceId(device_id);
                 console.log('Ready with Device ID', device_id);
+            
+                try {
+                    await player.connect();
+                    await player.activateElement();
+                    
+                    const response = await fetch('https://api.spotify.com/v1/me/player', {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            device_ids: [device_id],
+                            play: false
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        console.error('Spotify API Error:', errorData);
+                    } else {
+                        console.log('Device activated successfully');
+                    }
+                } catch (error) {
+                    console.error('Error during player initialization:', error);
+                }
             });
-
+    
             player.addListener('not_ready', ({ device_id }: { device_id: string }) => {
                 console.log('Device ID has gone offline', device_id);
             });
-
+    
             player.addListener('initialization_error', ({ message }: { message: string }) => {
                 console.error(message);
             });
-
+    
             player.addListener('authentication_error', ({ message }: { message: string }) => {
                 console.error(message);
             });
-
+    
             player.addListener('account_error', ({ message }: { message: string }) => {
                 console.error(message);
             });
-
-            player.connect();
-
+    
+            await player.connect();
         };
+    
+        return () => {
+            if (player) {
+                player.disconnect();
+            }
+        };
+    }, [token]);
 
-    }, []);
-
-    const playSong = async (e: any, device_id: string | null) => {
+    const playSong = async (e: React.MouseEvent) => {
         e.preventDefault();
-        player.activateElement();
-        await player.activateElement();
-        fetch('https://api.spotify.com/v1/me/player', {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                device_ids: [device_id],
-                play: true
-            })})
-            .then(data => console.log(data))
-            .catch(err => console.error(err)
-        );
-        fetch('https://api.spotify.com/v1/me/player/play', {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                device_id: device_id,
-                uris: ['spotify:track:6riC3JbelswTdXrOyuREzM']
-            })})
-            .then(data => console.log(data))
-            .catch(err => console.error(err)
-        );
-    }
+        
+        if (!player || !device_id) {
+            console.error('Player or device_id not initialized');
+            return;
+        }
+        
+        try {
+            await fetch('https://api.spotify.com/v1/me/player', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    device_ids: [device_id],
+                    play: false
+                })
+            });
+    
+            const response = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${device_id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    uris: ['spotify:track:7tzIfhMZhShxk8yqsYQBY8']
+                })
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Spotify API Error:', errorData);
+                
+                if (response.status === 404) {
+                    console.log('Attempting to reconnect player...');
+                    await player.connect();
+                    await player.activateElement();
+                    const retryResponse = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${device_id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            uris: ['spotify:track:7tzIfhMZhShxk8yqsYQBY8']
+                        })
+                    });
+                    
+                    if (!retryResponse.ok) {
+                        const retryErrorData = await retryResponse.json();
+                        console.error('Retry failed:', retryErrorData);
+                    }
+                }
+            } else {
+                console.log('Playback started successfully');
+            }
+        } catch (error) {
+            console.error('Error during playback:', error);
+        }
+    };
 
     return (
         <nav className="bg-[#171417] text-white p-4 absolute w-screen">
@@ -119,7 +179,7 @@ const Navbar: React.FC = () => {
                     <div className=' flex items-center gap-4'>
                         <IoRepeat className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer"/>
                         <IoPlaySkipBack className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer"/>
-                        <FaPlayCircle className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer" onClick={(e) => playSong(e, device_id)}/>
+                        <FaPlayCircle className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer" onClick={playSong}/>
                         <IoPlaySkipForward className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer"/>
                         <IoShuffle className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer"/>
                     </div>
