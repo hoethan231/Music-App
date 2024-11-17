@@ -450,29 +450,54 @@ const Navbar: React.FC = () => {
     );
 
     return (
-        <nav className="bg-[#171417] text-white p-4 w-screen fixed top-0 left-0">
-            <div className="container flex items-center mx-auto justify-center">
-                <div className="flex-1 h-full flex justify-center items-center text-xl">
-                    <div className="px-14">
-                        <a href="#" className="hover:text-gray-400">EXPLORE</a>
+        <>
+            <nav className="bg-[#171417] z-50 text-white p-4 w-screen fixed top-0 left-0">
+                <div className="container flex items-center mx-auto justify-center">
+                    <div className="flex-1 h-full flex justify-center items-center text-xl">
+                        <div className="px-14">
+                            <a href="/explore" className="hover:text-gray-400">EXPLORE</a>
+                        </div>
+                        <div className="px-14">
+                            <a href="/library/playlist" className="hover:text-gray-400">LIBRARY</a>
+                        </div>
                     </div>
-                    <div className="px-14">
-                        <a href="#" className="hover:text-gray-400">LIBRARY</a>
+                    <div className="flex-1 h-full flex items-center justify-center">
+                        {isInitializing ? <LoadingState /> : <LoadedState />}
+                    </div>
+                    <div className="flex-1 h-full flex items-center justify-center">
+                        <div className="px-14">
+                            <a href="#" className="hover:text-gray-400">COMMUNITY</a>
+                        </div>
+                        <div className="px-14">
+                            <a href="#" className="hover:text-gray-400">PROFILE</a>
+                        </div>
                     </div>
                 </div>
-                <div className="flex-1 h-full flex items-center justify-center">
-                    {isInitializing ? <LoadingState /> : <LoadedState />}
-                </div>
-                <div className="flex-1 h-full flex items-center justify-center">
-                    <div className="px-14">
-                        <a href="#" className="hover:text-gray-400">COMMUNITY</a>
+            </nav>
+            <nav className="bg-[#171417] text-white p-4 w-screen invisible">
+                <div className="container flex items-center mx-auto justify-center">
+                    <div className="flex-1 h-full flex justify-center items-center text-xl">
+                        <div className="px-14">
+                            <a href="/explore" className="hover:text-gray-400">EXPLORE</a>
+                        </div>
+                        <div className="px-14">
+                            <a href="/library/playlist" className="hover:text-gray-400">LIBRARY</a>
+                        </div>
                     </div>
-                    <div className="px-14">
-                        <a href="#" className="hover:text-gray-400">PROFILE</a>
+                    <div className="flex-1 h-full flex items-center justify-center">
+                        {isInitializing ? <LoadingState /> : <LoadedState />}
+                    </div>
+                    <div className="flex-1 h-full flex items-center justify-center">
+                        <div className="px-14">
+                            <a href="#" className="hover:text-gray-400">COMMUNITY</a>
+                        </div>
+                        <div className="px-14">
+                            <a href="#" className="hover:text-gray-400">PROFILE</a>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </nav>
+            </nav>
+        </>
     );
 };
 
