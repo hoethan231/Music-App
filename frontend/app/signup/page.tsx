@@ -4,12 +4,38 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input-two";
 import { cn } from "@/lib/utils";
 import { IconBrandGoogle } from "@tabler/icons-react";
+import { auth } from "@/app/firebase/config" 
+import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
+import { signInWithPopup, updateProfile, GoogleAuthProvider } from "firebase/auth";
+import { useRouter } from "next/router";
 
 export default function page() {
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  
+  const [createUserWithEmailAndPassword] = useCreateUserWithEmailAndPassword(auth);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Form submitted");
+    try {
+      const email = (e.target as HTMLFormElement).email.value;
+      const password = (e.target as HTMLFormElement).password.value;
+      const firstName = (e.target as HTMLFormElement).firstname.value;
+      const lastName = (e.target as HTMLFormElement).lastname.value;
+      const router = useRouter();
+  
+      const userCredential = await createUserWithEmailAndPassword(email, password);
+      if (userCredential) {
+        const user = userCredential.user;
+        await updateProfile(user, {
+          displayName: `${firstName} ${lastName}`,
+        });
+        router.push("/login");
+        console.log(user);
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
+
   return (
     <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black mt-[3vw]">
       <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">

@@ -1,14 +1,34 @@
 "use client";
 import React from "react";
-import { Label } from "../../components/ui/label";
-import { Input } from "../../components/ui/input-two";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input-two";
 import { cn } from "@/lib/utils";
 import { IconBrandGoogle } from "@tabler/icons-react";
+import { auth } from "@/app/firebase/config" 
+import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
+import { useRouter } from "next/navigation";
 
 export default function page() {
+
+  const [signUserWithEmailAndPassword] = useSignInWithEmailAndPassword(auth);
+  const router = useRouter();
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Form submitted");
+    const email = (e.target as HTMLFormElement).email.value;
+    const password = (e.target as HTMLFormElement).password.value;
+    try {
+      signUserWithEmailAndPassword(email, password).then((userCredential) => {
+        if (userCredential) {
+          const user = userCredential.user;
+          sessionStorage.setItem("user", JSON.stringify(user));
+          router.push("/explore");
+          console.log(user);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+    }
   };
   return (
     <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black mt-[8vw]">

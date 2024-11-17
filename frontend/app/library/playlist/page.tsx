@@ -1,10 +1,21 @@
+"use client";
 import React from 'react';
 import uni from "@/public/image.webp";
 import Image from 'next/image';
 import { DataTable } from "@/components/ui/data-table";
 import { columns } from '@/components/ui/columns';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from "@/app/firebase/config";
+import { useRouter } from 'next/navigation';
 
 const PlaylistPage: React.FC = () => {
+    const router = useRouter();
+    const [user] = useAuthState(auth);
+    const userSession = sessionStorage.getItem("user");
+    
+    if (!user && !userSession) {
+        router.push("/login");
+    }
 
     const tempSongs = [
         {

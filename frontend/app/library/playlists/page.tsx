@@ -8,10 +8,20 @@ import {
   } from "@/components/ui/carousel"
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from "@/app/firebase/config";
+import { useRouter } from 'next/navigation';
 
 const PlaylistsPage: React.FC = () => {
+    const router = useRouter();
+    const [user] = useAuthState(auth);
+    const userSession = sessionStorage.getItem("user");
     
     const [currentCard, setCurrentCard] = useState<number>(0);
+
+    if (!userSession && !user) {
+        router.push("/login");
+    }
 
     const setIndex = (e: number) => {
         setCurrentCard(e+2);
