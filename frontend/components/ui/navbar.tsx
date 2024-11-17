@@ -450,7 +450,7 @@ const Navbar: React.FC = () => {
     );
 
     return (
-        <nav className="bg-[#171417] text-white p-4 w-screen">
+        <nav className="bg-[#171417] text-white p-4 w-screen fixed top-0 left-0">
             <div className="container flex items-center mx-auto justify-center">
                 <div className="flex-1 h-full flex justify-center items-center text-xl">
                     <div className="px-14">
