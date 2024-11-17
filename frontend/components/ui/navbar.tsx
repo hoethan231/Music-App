@@ -429,11 +429,11 @@ const Navbar: React.FC = () => {
             </div>
             <div className="flex items-center gap-4">
                 <IoRepeat className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer"/>
-                <IoPlaySkipBack className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer" onClick={previousSong}/> // TODO: Make Work
+                <IoPlaySkipBack className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer" onClick={previousSong}/>
                 {isPlaying ? (
                     <FaPauseCircle className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer" onClick={pauseSong}/>
                     ) : (
-                    <FaPlayCircle className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer" onClick={playSong}/>)} // TODO: Make Work
+                    <FaPlayCircle className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer" onClick={playSong}/>)}
                 <IoPlaySkipForward className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer" onClick={skipSong}/>
                 <IoShuffle className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer"/>
             </div>
@@ -450,7 +450,7 @@ const Navbar: React.FC = () => {
     );
 
     return (
-        <nav className="bg-[#171417] text-white p-4 absolute w-screen">
+        <nav className="bg-[#171417] text-white p-4 w-screen">
             <div className="container flex items-center mx-auto justify-center">
                 <div className="flex-1 h-full flex justify-center items-center text-xl">
                     <div className="px-14">

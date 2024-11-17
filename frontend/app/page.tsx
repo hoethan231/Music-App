@@ -21,7 +21,11 @@ export default function Home() {
             <div>Your go-to destination for discovering and listening to the latest hits!</div>
             <div>Get started to jump right into<FlipWords words={genres} className="text-[#c2a2e9] font-bold"/></div>
           </div>
-          {/* <Button variant="outline" className="bg-white w-[50%]">Get Started!</Button> */}
+          <Button variant="outline" className="bg-white w-[50%]">
+            <a href="/signup">
+              Get Started!
+            </a>
+          </Button>
         </div>
       </div>
     </TracingBeam>
