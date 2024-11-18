@@ -1,21 +1,54 @@
 "use client";
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import uni from "@/public/image.webp";
 import Image from 'next/image';
 import { DataTable } from "@/components/ui/data-table";
 import { columns } from '@/components/ui/columns';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from "@/app/firebase/config";
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
-const PlaylistPage: React.FC = () => {
+interface PlaylistPageProps {
+    params: { id: string };
+}
+
+const PlaylistPage: React.FC<PlaylistPageProps> = ({ params }) => {
+    const token = process.env.NEXT_PUBLIC_ACCESS_TOKEN;
+    const { id } = params;
     const router = useRouter();
+    const searchParams = useSearchParams()
     const [user] = useAuthState(auth);
     const userSession = sessionStorage.getItem("user");
     
     if (!user && !userSession) {
         router.push("/login");
     }
+
+    const [tracks, setTracks] = useState<any[]>([]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            console.log(id);
+            fetch(`https://api.spotify.com/v1/playlists/${id}`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+                .then((res) => res.json())
+                .then((data) => {
+                    const formattedTracks = data.tracks.items.map((item: any, index: number) => ({
+                        idx: index + 1,
+                        title: item.track.name,
+                        album: item.track.album.name,
+                        date: item.added_at.substring(0,10),
+                        length: new Date(item.track.duration_ms).toISOString().substr(11, 8), // Convert ms to HH:MM:SS
+                    }));
+                    setTracks(formattedTracks);
+                });
+        };
+        fetchData();
+    }, []);
 
     const tempSongs = [
         {
@@ -51,7 +84,7 @@ const PlaylistPage: React.FC = () => {
                 </div>
             </div>
             <div className="max-h-screen w-2/3 flex justify-center items-center">
-                <DataTable columns={columns} data={tempSongs} />
+                <DataTable columns={columns} data={tracks} />
             </div>
         </div>
     );

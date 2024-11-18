@@ -7,6 +7,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel-two";
+import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from 'next/navigation';
@@ -41,7 +42,9 @@ export default function page() {
     "linear-gradient(to right, #ffdde1, #ee9ca7)"
   ];
 
-  const [playlists, setPlaylists] = useState<{ name: string }[]>([]);
+  const [playlists, setPlaylists] = useState<{
+    id: any; name: string 
+}[]>([]);
   const [artists, setArtists] = useState<{ artists: string }[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -73,7 +76,6 @@ export default function page() {
       .then((res) => res.json())
       .then((data) => {
         setArtists(data.tracks);
-        console.log(data);
       });
 
     Promise.all([fetchPlaylists, fetchArtists]).finally(() => setLoading(false));
@@ -133,13 +135,15 @@ export default function page() {
                 return (
                   <CarouselItem key={index}>
                     <div className="p-1">
-                      <Card style={{ background: randomGradient }}>
-                        <CardContent className="flex w-[17vw] h-[17vw] items-center justify-center p-6 bg-[#747474] bg-opacity-20 text-center">
-                          <span className="text-4xl text-[#0E0317] font-semibold">
-                            {playlist.name}
-                          </span>
-                        </CardContent>
-                      </Card>
+                      <Link href={`/library/playlist/${playlist.id}`}>
+                        <Card style={{ background: randomGradient }}>
+                          <CardContent className="flex w-[17vw] h-[17vw] items-center justify-center p-6 bg-[#747474] bg-opacity-20 text-center">
+                            <span className="text-4xl text-[#0E0317] font-semibold">
+                              {playlist.name}
+                            </span>
+                          </CardContent>
+                        </Card>
+                      </Link>
                     </div>
                   </CarouselItem>
                 )
