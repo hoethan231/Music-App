@@ -458,7 +458,7 @@ const Navbar: React.FC = () => {
                             <a href="/explore" className="hover:text-gray-400">EXPLORE</a>
                         </div>
                         <div className="px-14">
-                            <a href="/library/playlist" className="hover:text-gray-400">LIBRARY</a>
+                            <a href="/library/playlists" className="hover:text-gray-400">LIBRARY</a>
                         </div>
                     </div>
                     <div className="flex-1 h-full flex items-center justify-center">
