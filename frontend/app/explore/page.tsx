@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+import React, { useState, useEffect } from "react";
 import {
   Carousel,
   CarouselContent,
@@ -9,6 +10,60 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 
 export default function page() {
+  const token = process.env.NEXT_PUBLIC_ACCESS_TOKEN;
+  const gradients = [
+    "linear-gradient(to right, #a8edea, #fed6e3)",
+    "linear-gradient(to right, #fbc2eb, #a6c1ee)",
+    "linear-gradient(to right, #fddb92, #d1fdff)",
+    "linear-gradient(to right, #d4fc79, #96e6a1)",
+    "linear-gradient(to right, #a1c4fd, #c2e9fb)",
+    "linear-gradient(to right, #ffecd2, #fcb69f)",
+    "linear-gradient(to right, #ff9a9e, #fecfef)",
+    "linear-gradient(to right, #f6d365, #fda085)",
+    "linear-gradient(to right, #fbc2eb, #a18cd1)",
+    "linear-gradient(to right, #ffdde1, #ee9ca7)",
+    "linear-gradient(to right, #a1c4fd, #c2e9fb)",
+    "linear-gradient(to right, #d4fc79, #96e6a1)",
+    "linear-gradient(to right, #fbc2eb, #a6c1ee)",
+    "linear-gradient(to right, #ffecd2, #fcb69f)",
+    "linear-gradient(to right, #fddb92, #d1fdff)",
+    "linear-gradient(to right, #a8edea, #fed6e3)",
+    "linear-gradient(to right, #ff9a9e, #fecfef)",
+    "linear-gradient(to right, #f6d365, #fda085)",
+    "linear-gradient(to right, #fbc2eb, #a18cd1)",
+    "linear-gradient(to right, #ffdde1, #ee9ca7)"
+  ];
+
+  const [playlists, setPlaylists] = useState<{ name: string }[]>([]);
+  const [artists, setArtists] = useState<{ artists: string }[]>([]);
+
+  useEffect(() => {
+    fetch("https://api.spotify.com/v1/browse/featured-playlists", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setPlaylists(data.playlists.items);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    fetch("https://api.spotify.com/v1/recommendations?seed_artists=35l9BRT7MXmM8bv2WDQiyB", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setArtists(data.tracks);
+        console.log(data);
+      });
+  },[])
+
   return (
     <div>
       <div className="px-20 pt-10 pb-6">
@@ -19,13 +74,13 @@ export default function page() {
       <div className="flex justify-center items-center">
         <Carousel className="w-full text-white px-20 py-10">
           <CarouselContent>
-            {Array.from({ length: 8 }).map((_, index) => (
+            {artists.map((artist, index) => (
               <CarouselItem key={index}>
                 <div className="p-1">
                   <Card>
                     <CardContent className="flex h-[30vw] w-[21.5vw] items-center justify-center p-6 bg-[#747474] bg-opacity-20">
                       <span className="text-4xl text-[#c2a2e9] font-semibold">
-                        artist goes here
+                        {artist.artists[0].name}
                       </span>
                     </CardContent>
                   </Card>
@@ -49,19 +104,22 @@ export default function page() {
       <div className="flex justify-center items-center">
         <Carousel className="w-full text-white px-20 py-10 ">
           <CarouselContent>
-            {Array.from({ length: 8 }).map((_, index) => (
-              <CarouselItem key={index}>
-                <div className="p-1">
-                  <Card>
-                    <CardContent className="flex w-[17vw] h-[17vw] items-center justify-center p-6 bg-[#747474] bg-opacity-20">
-                      <span className="text-4xl text-[#c2a2e9] font-semibold">
-                        playlist goes here
-                      </span>
-                    </CardContent>
-                  </Card>
-                </div>
-              </CarouselItem>
-            ))}
+            {playlists.map((playlist, index) => {
+              const randomGradient = gradients[Math.floor(Math.random() * gradients.length)];
+              return (
+                <CarouselItem key={index}>
+                  <div className="p-1">
+                    <Card style={{ background: randomGradient }}>
+                      <CardContent className="flex w-[17vw] h-[17vw] items-center justify-center p-6 bg-[#747474] bg-opacity-20 text-center">
+                        <span className="text-4xl text-[#0E0317] font-semibold">
+                          {playlist.name}
+                        </span>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </CarouselItem>
+              )
+            })}
           </CarouselContent>
           <div className="flex justify-end mt-4">
             <CarouselPrevious />
