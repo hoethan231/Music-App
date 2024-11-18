@@ -464,7 +464,7 @@ const Navbar: React.FC = () => {
                     <div className="flex-1 h-full flex items-center justify-center">
                         {isInitializing ? <LoadingState /> : <LoadedState />}
                     </div>
-                    <div className="flex-1 h-full flex items-center justify-center">
+                    <div className="flex-1 h-full flex items-center justify-center text-xl">
                         <div className="px-14">
                             <a href="#" className="hover:text-gray-400">COMMUNITY</a>
                         </div>

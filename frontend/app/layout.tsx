@@ -6,9 +6,9 @@ import "./globals.css";
 
 export const NavbarWrapper = () => {
     const pathname = usePathname();
-    const isHomePage = pathname === "/";
+    const isBadPage = pathname === "/" || pathname === "/login" || pathname === "/signup";
 
-    if (isHomePage) return null;
+    if (isBadPage) return null;
     return <Navbar />;
 }
 
