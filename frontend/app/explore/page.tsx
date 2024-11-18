@@ -8,6 +8,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel-two";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function page() {
   const token = process.env.NEXT_PUBLIC_ACCESS_TOKEN;
@@ -35,10 +36,11 @@ export default function page() {
   ];
 
   const [playlists, setPlaylists] = useState<{ name: string }[]>([]);
-  const [artists, setArtists] = useState<{ artists: string }[]>([]);
+  const [artists, setArtists] = useState<{ artists: string, name: string }[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("https://api.spotify.com/v1/browse/featured-playlists", {
+    const fetchPlaylists = fetch("https://api.spotify.com/v1/browse/featured-playlists", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -51,7 +53,8 @@ export default function page() {
       .catch((err) => {
         console.log(err);
       });
-    fetch("https://api.spotify.com/v1/recommendations?seed_artists=35l9BRT7MXmM8bv2WDQiyB", {
+
+    const fetchArtists = fetch("https://api.spotify.com/v1/recommendations?seed_artists=35l9BRT7MXmM8bv2WDQiyB", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -62,7 +65,9 @@ export default function page() {
         setArtists(data.tracks);
         console.log(data);
       });
-  },[])
+
+    Promise.all([fetchPlaylists, fetchArtists]).finally(() => setLoading(false));
+  }, []);
 
   return (
     <div>
@@ -74,7 +79,7 @@ export default function page() {
       <div className="flex justify-center items-center">
         <Carousel className="w-full text-white px-20 py-10">
           <CarouselContent>
-            {artists.map((artist, index) => (
+            {!loading ? (artists.map((artist, index) => (
               <CarouselItem key={index}>
                 <div className="p-1">
                   <Card>
@@ -86,7 +91,15 @@ export default function page() {
                   </Card>
                 </div>
               </CarouselItem>
-            ))}
+            ))) : (
+                Array.from({ length: 5 }).map((_, index) => (
+                  <CarouselItem key={index}>
+                    <div className="p-1">
+                      <Skeleton className="flex h-[30vw] w-[21.5vw] items-center justify-center p-6 bg-[#747474] bg-opacity-20" />
+                    </div>
+                  </CarouselItem>
+                ))
+            )}
           </CarouselContent>
           <div className="flex justify-end mt-4 mr-4">
             <CarouselPrevious />
@@ -104,22 +117,32 @@ export default function page() {
       <div className="flex justify-center items-center">
         <Carousel className="w-full text-white px-20 py-10 ">
           <CarouselContent>
-            {playlists.map((playlist, index) => {
-              const randomGradient = gradients[Math.floor(Math.random() * gradients.length)];
-              return (
+            {!loading ? (
+              playlists.map((playlist, index) => {
+                const randomGradient = gradients[Math.floor(Math.random() * gradients.length)];
+                return (
+                  <CarouselItem key={index}>
+                    <div className="p-1">
+                      <Card style={{ background: randomGradient }}>
+                        <CardContent className="flex w-[17vw] h-[17vw] items-center justify-center p-6 bg-[#747474] bg-opacity-20 text-center">
+                          <span className="text-4xl text-[#0E0317] font-semibold">
+                            {playlist.name}
+                          </span>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </CarouselItem>
+                )
+              })
+            ) : (
+              Array.from({ length: 5 }).map((_, index) => (
                 <CarouselItem key={index}>
                   <div className="p-1">
-                    <Card style={{ background: randomGradient }}>
-                      <CardContent className="flex w-[17vw] h-[17vw] items-center justify-center p-6 bg-[#747474] bg-opacity-20 text-center">
-                        <span className="text-4xl text-[#0E0317] font-semibold">
-                          {playlist.name}
-                        </span>
-                      </CardContent>
-                    </Card>
+                    <Skeleton className="flex w-[17vw] h-[17vw] items-center justify-center p-6 bg-[#747474] bg-opacity-20" />
                   </div>
                 </CarouselItem>
-              )
-            })}
+              ))
+            )}
           </CarouselContent>
           <div className="flex justify-end mt-4">
             <CarouselPrevious />
