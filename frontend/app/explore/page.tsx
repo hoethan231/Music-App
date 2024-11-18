@@ -9,9 +9,15 @@ import {
 } from "@/components/ui/carousel-two";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useRouter } from 'next/navigation';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from "@/app/firebase/config";
 
 export default function page() {
   const token = process.env.NEXT_PUBLIC_ACCESS_TOKEN;
+  const router = useRouter();
+  const [user] = useAuthState(auth);
+  const userSession = sessionStorage.getItem("user");
   const gradients = [
     "linear-gradient(to right, #a8edea, #fed6e3)",
     "linear-gradient(to right, #fbc2eb, #a6c1ee)",
@@ -36,8 +42,12 @@ export default function page() {
   ];
 
   const [playlists, setPlaylists] = useState<{ name: string }[]>([]);
-  const [artists, setArtists] = useState<{ artists: string, name: string }[]>([]);
+  const [artists, setArtists] = useState<{ artists: string }[]>([]);
   const [loading, setLoading] = useState(true);
+
+  if (!user && !userSession) {
+    router.push("/login");
+  }
 
   useEffect(() => {
     const fetchPlaylists = fetch("https://api.spotify.com/v1/browse/featured-playlists", {
