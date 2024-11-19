@@ -19,7 +19,7 @@ export function Sidebar({ open, setOpen }: SidebarContainerProps) {
   };
 
   return (
-    <div className={cn("rounded-md min-h-screen")}>
+    <div className={cn("fixed rounded-md min-h-screen")}>
       <SidebarHelper open={open} setOpen={setOpen}>
         <SidebarBody className="justify-between gap-16">
           <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden mt-6 no-scrollbar">

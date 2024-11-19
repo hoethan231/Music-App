@@ -82,7 +82,7 @@ export default function page() {
   }, []);
 
   return (
-    <div>
+    <div className="pl-[3vw]">
       <div className="px-20 pt-10 pb-6">
         <h1 className="text-4xl font-bold text-white">Listen Now</h1>
         <p className="text-white text-opacity-75">Top picks for you.</p>

@@ -14,26 +14,44 @@ export const NavbarWrapper = () => {
   return <Navbar />;
 };
 
-export const SidebarWrapper = () => {
-    const pathname = usePathname();
-    const isBadPage = pathname === "/" || pathname === "/login" || pathname === "/signup"; 
-    const [sidebarOpen, setSidebarOpen] = useState(false);
-    if (isBadPage) return null;
-    return <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />;
-  };
+export const SidebarWrapper = ({
+  sidebarOpen,
+  setSidebarOpen,
+}: {
+  sidebarOpen: boolean;
+  setSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
+  const pathname = usePathname();
+  const isBadPage =
+    pathname === "/" || pathname === "/login" || pathname === "/signup" || pathname.startsWith("/library");
+
+  if (isBadPage) return null;
+  return <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />;
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
     <html lang="en">
       <body className="">
         <NavbarWrapper />
         <div className="flex">
-          <SidebarWrapper />
-          <main className="flex-grow">{children}</main>
+          <SidebarWrapper
+            sidebarOpen={sidebarOpen}
+            setSidebarOpen={setSidebarOpen}
+          />
+          <main
+            className={`flex-grow transition-padding duration-300 ${
+              sidebarOpen ? "pl-[16vw]" : "pl-[0vw]"
+            }`}
+          >
+            {children}
+          </main>
         </div>
       </body>
     </html>

@@ -105,22 +105,19 @@ const Navbar: React.FC = () => {
 
                 player.addListener('initialization_error', ({ message }: { message: string }) => {
                     console.error('Initialization error:', message);
-                    throw new Error(message);
                 });
 
                 player.addListener('authentication_error', ({ message }: { message: string }) => {
                     console.error('Authentication error:', message);
-                    throw new Error(message);
                 });
 
                 player.addListener('account_error', ({ message }: { message: string }) => {
                     console.error('Account error:', message);
-                    throw new Error(message);
                 });
 
                 const connected = await player.connect();
                 if (!connected) {
-                    throw new Error('Failed to connect player');
+                    console.error('Failed to connect player');
                 }
 
                 return player;
@@ -469,7 +466,7 @@ const Navbar: React.FC = () => {
                             <a href="#" className="hover:text-gray-400">COMMUNITY</a>
                         </div>
                         <div className="px-14">
-                            <a href="#" className="hover:text-gray-400">PROFILE</a>
+                            <a href="/profile" className="hover:text-gray-400">PROFILE</a>
                         </div>
                     </div>
                 </div>
