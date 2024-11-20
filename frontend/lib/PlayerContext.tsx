@@ -9,11 +9,25 @@ declare global {
     }
 }
 
+interface Spotify {
+  Track: {
+    id: string;
+    name: string;
+    album: {
+      images: { url: string }[];
+    };
+    artists: { name: string }[];
+  };
+}
+
 interface PlayerContextProps {
   player: Window['Spotify']['Player'] | null;
   device_id: string | null;
   isPlaying: boolean;
   isInitializing: boolean;
+  currentTrack: Spotify['Track'] | null;
+  currentPosition: number;
+  duration: number;
   playSong: (uri: string) => void;
   pauseSong: () => void;
   skipSong: () => void;
@@ -29,6 +43,9 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [device_id, setDeviceId] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
+  const [currentTrack, setCurrentTrack] = useState<Spotify['Track'] | null>(null);
+  const [currentPosition, setCurrentPosition] = useState(0);
+  const [duration, setDuration] = useState(0);
 
   const initializePlayer = useCallback(async () => {
     if (!token) {
@@ -64,9 +81,13 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         setIsInitializing(false);
       });
 
-      player.addListener('player_state_changed', (state: { paused: any; }) => {
+      player.addListener('player_state_changed', (state: any) => {
         if (state) {
           setIsPlaying(!state.paused);
+          setCurrentTrack(state.track_window.current_track);
+          setCurrentPosition(state.position);
+          setDuration(state.duration);
+          console.log(state.position);
         }
       });
 
@@ -182,7 +203,7 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   return (
-    <PlayerContext.Provider value={{ player, device_id, isPlaying, isInitializing, playSong, pauseSong, skipSong, previousSong, resumeSong }}>
+    <PlayerContext.Provider value={{ player, device_id, isPlaying, isInitializing, currentTrack, currentPosition, duration, playSong, pauseSong, skipSong, previousSong, resumeSong }}>
       {children}
     </PlayerContext.Provider>
   );

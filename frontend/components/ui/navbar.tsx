@@ -10,7 +10,7 @@ import { usePlayer } from "@/lib/PlayerContext";
 
 const Navbar: React.FC = () => {
 
-    const { isInitializing, isPlaying, playSong, resumeSong, pauseSong, skipSong, previousSong } = usePlayer();
+    const { isInitializing, isPlaying, currentTrack, resumeSong, pauseSong, skipSong, previousSong } = usePlayer();
 
     const LoadingState = () => (
         <>
@@ -44,13 +44,15 @@ const Navbar: React.FC = () => {
 
     const LoadedState = () => (
         <>
-            <div className="flex justify-center items-center px-4">
+            <div className="flex justify-center items-center px-3">
                 <div className="px-3 h-full">
-                    <img src={sampleSong.src} alt="sample song" className="rounded-md w-[10vh]"/>
+                    {currentTrack && <img src={currentTrack?.album.images[2]?.url} alt="sample song" className="rounded-md w-[10vh]"/>}
                 </div>
                 <div className="w-[10vw]">
-                    <h1 className="font-sm text-md">morning moon</h1>
-                    <h2 className="text-xs text-gray-300">fouroclock</h2>
+                    {currentTrack && <h1 className="font-sm text-md">{(currentTrack?.name)}</h1>}
+                    {currentTrack && <h2 className="text-xs text-gray-300">{currentTrack?.artists.map((artist, idx) => (
+                        artist.name + (idx === currentTrack.artists.length - 1 ? "" : ", ")
+                    ))}</h2>}
                 </div>
             </div>
             <div className="flex items-center gap-4">
