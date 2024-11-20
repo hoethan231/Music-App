@@ -18,9 +18,8 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ params }) => {
     const router = useRouter();
     const searchParams = useSearchParams()
     const [user] = useAuthState(auth);
-    const userSession = sessionStorage.getItem("user");
     
-    if (!user && !userSession) {
+    if (!user) {
         router.push("/login");
     }
 
@@ -28,7 +27,6 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ params }) => {
 
     useEffect(() => {
         const fetchData = async () => {
-            console.log(id);
             fetch(`https://api.spotify.com/v1/playlists/${id}`, {
                 method: "GET",
                 headers: {
@@ -37,10 +35,15 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ params }) => {
             })
                 .then((res) => res.json())
                 .then((data) => {
-                    const formattedTracks = data.tracks.items.map((item: any, index: number) => ({
+                    const formattedTracks = data.tracks.items
+                    .filter((item: any) => item.track.type === "track")
+                    .map((item: any, index: number) => ({
                         idx: index + 1,
+                        id: item.track.id,
                         title: item.track.name,
+                        artist: item.track.artists[0].name,
                         album: item.track.album.name,
+                        img: item.track.album.images[1].url,
                         date: item.added_at.substring(0,10),
                         length: new Date(item.track.duration_ms).toISOString().substr(11, 8), // Convert ms to HH:MM:SS
                     }));

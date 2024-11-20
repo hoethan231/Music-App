@@ -21,6 +21,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
+import { usePlayer } from '@/lib/PlayerContext';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -32,6 +33,8 @@ export function DataTable<TData, TValue>({
   data,
 }: DataTableProps<TData, TValue>) {
   
+  const { playSong } = usePlayer();
+
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = React.useState({});
@@ -58,17 +61,22 @@ export function DataTable<TData, TValue>({
     },
   })
 
+  const handleRowClick = async (row: any) => {
+    const song = row.original;
+    playSong(`spotify:track:${song.id}`);
+  };
+
   return (
     <div className="h-full w-full flex justify-center flex-col mr-[6vw]">
       <div className="flex items-center py-4">
-          <Input
-            placeholder="Filter songs..."
-            value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
-            onChange={(event: any) =>
-              table.getColumn("title")?.setFilterValue(event.target.value)
-            }
-            className="max-w-sm text-white"
-          />
+        <Input
+          placeholder="Filter songs..."
+          value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
+          onChange={(event: any) =>
+            table.getColumn("title")?.setFilterValue(event.target.value)
+          }
+          className="max-w-sm text-white"
+        />
       </div>
       <div className="w-full h-[70%] flex">
         <div className="text-white bg-[#898989]/[.20] rounded-2xl border-[#747474] border-2 w-full overflow-y-auto no-scrollbar">
@@ -86,7 +94,7 @@ export function DataTable<TData, TValue>({
                               header.getContext()
                             )}
                       </TableHead>
-                    )
+                    );
                   })}
                 </TableRow>
               ))}
@@ -97,6 +105,7 @@ export function DataTable<TData, TValue>({
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
+                    onClick={() => handleRowClick(row)}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
@@ -117,5 +126,5 @@ export function DataTable<TData, TValue>({
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -2,7 +2,6 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
-import { ArrowUpDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -24,9 +23,16 @@ export const columns: ColumnDef<any>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           #
-          <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       )
+    },
+    cell: ({ row }) => {
+      const song = row.original;
+      return (
+        <div className="flex items-center justify-center">
+          {song.idx}
+        </div>
+      );
     },
   },
   {
@@ -38,14 +44,44 @@ export const columns: ColumnDef<any>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Title
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      )
+    },
+    cell: ({ row }) => {
+      const song = row.original;
+      return (
+        <div className="flex items-center">
+          <img src={song.img} alt={song.title} className="w-[3vw] h-[3vw] mr-2 rounded-lg" />
+          <span>{song.title}</span>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "artist",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Artist
         </Button>
       )
     },
   },
   {
     accessorKey: "album",
-    header: "Album",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Album
+        </Button>
+      )
+    },
   },
   {
     accessorKey: "date",

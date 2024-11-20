@@ -15,11 +15,10 @@ import { useRouter } from 'next/navigation';
 const PlaylistsPage: React.FC = () => {
     const router = useRouter();
     const [user] = useAuthState(auth);
-    const userSession = sessionStorage.getItem("user");
     
     const [currentCard, setCurrentCard] = useState<number>(0);
 
-    if (!userSession && !user) {
+    if (!user) {
         router.push("/login");
     }
 
