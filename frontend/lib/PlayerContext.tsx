@@ -33,6 +33,7 @@ interface PlayerContextProps {
   skipSong: () => void;
   previousSong: () => void;
   resumeSong: () => void;
+  setVolume: (volume: number) => void;
 }
 
 const PlayerContext = createContext<PlayerContextProps | undefined>(undefined);
@@ -87,7 +88,6 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           setCurrentTrack(state.track_window.current_track);
           setCurrentPosition(state.position);
           setDuration(state.duration);
-          console.log(state.position);
         }
       });
 
@@ -202,8 +202,19 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   };
 
+  const setVolume = (volume: number) => {
+    if (!player) {
+      console.error('Player not initialized');
+      return;
+    }
+
+    player.setVolume(volume).catch((error: any) => {
+      console.error('Error setting volume:', error);
+    });
+  };
+
   return (
-    <PlayerContext.Provider value={{ player, device_id, isPlaying, isInitializing, currentTrack, currentPosition, duration, playSong, pauseSong, skipSong, previousSong, resumeSong }}>
+    <PlayerContext.Provider value={{ player, device_id, isPlaying, isInitializing, currentTrack, currentPosition, duration, playSong, pauseSong, skipSong, previousSong, resumeSong, setVolume }}>
       {children}
     </PlayerContext.Provider>
   );

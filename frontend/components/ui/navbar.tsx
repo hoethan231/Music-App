@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Skeleton } from "@/components/ui/skeleton"
+import { Slider } from "@/components/ui/slider"
 import sampleSong from "@/public/fouroclock.jpg";
 import { FaPlayCircle, FaPauseCircle } from "react-icons/fa";
 import { IoPlaySkipBack, IoPlaySkipForward, IoShuffle, IoRepeat } from "react-icons/io5";
@@ -10,7 +11,7 @@ import { usePlayer } from "@/lib/PlayerContext";
 
 const Navbar: React.FC = () => {
 
-    const { isInitializing, isPlaying, currentTrack, resumeSong, pauseSong, skipSong, previousSong } = usePlayer();
+    const { isInitializing, isPlaying, currentTrack, resumeSong, pauseSong, skipSong, previousSong, setVolume } = usePlayer();
 
     const LoadingState = () => (
         <>
@@ -65,14 +66,16 @@ const Navbar: React.FC = () => {
                 <IoPlaySkipForward className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer" onClick={skipSong}/>
                 <IoShuffle className="h-8 w-8 hover:text-gray-400 hover:cursor-pointer"/>
             </div>
-            <div className="flex justify-center items-center px-4 invisible">
-                <div className="px-3 h-full">
-                    <img src={sampleSong.src} alt="sample song" className="rounded-md w-[10vh]"/>
-                </div>
-                <div className="w-[10vw]">
-                    <h1 className="font-sm text-md">morning moon</h1>
-                    <h2 className="text-xs text-gray-300">fouroclock</h2>
-                </div>
+            <div className="flex justify-center items-center pl-10">
+                <Slider
+                    defaultValue={[50]}
+                    max={100}
+                    step={1}
+                    className="w-[6vw] h-1/2"
+                    onValueChange={(value: number[]) => {
+                        setVolume(value[0] / 100);
+                    }}
+                />
             </div>
         </>
     );
@@ -97,7 +100,7 @@ const Navbar: React.FC = () => {
                         {isInitializing ? <LoadingState /> : <LoadedState />}
                     </div>
                     <div className="flex-1 h-full flex items-center justify-center text-xl">
-                        <div className="px-14">
+                        <div className="pr-7">
                             <Link href="/community">
                                 <h1 className="hover:text-gray-400">COMMUNITY</h1>
                             </Link>
