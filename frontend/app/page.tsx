@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { FlipWords } from "@/components/ui/flip-words";
 import { Highlight } from "@/components/ui/hero-highlight";
 import { TracingBeam } from "@/components/ui/tracing-beam";
+import Link from "next/link";
 
 export default function Home() {
   const genres = ["K-pop", "R&B", "Jazz", "Rap", "Classical", "Country"];
@@ -22,9 +23,9 @@ export default function Home() {
             <div>Get started to jump right into<FlipWords words={genres} className="text-[#c2a2e9] font-bold"/></div>
           </div>
           <Button variant="outline" className="bg-white w-[50%]">
-            <a href="/signup">
+            <Link href="/login">
               Get Started!
-            </a>
+            </Link>
           </Button>
         </div>
       </div>

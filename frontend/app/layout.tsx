@@ -9,7 +9,7 @@ import "./globals.css";
 
 export const NavbarWrapper = () => {
   const pathname = usePathname();
-  const isHomePage = pathname === "/";
+  const isHomePage = pathname === "/" || pathname === "/login" || pathname === "/signup";
 
   if (isHomePage) return null;
   return <Navbar />;
