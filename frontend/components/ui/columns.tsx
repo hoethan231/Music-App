@@ -7,10 +7,10 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSubContent
 } from "@/components/ui/dropdown-menu"
+import { DropdownMenuSub, DropdownMenuSubTrigger } from "@radix-ui/react-dropdown-menu";
 
 //To-do change the type
 export const columns: ColumnDef<any>[] = [
@@ -105,13 +105,16 @@ export const columns: ColumnDef<any>[] = [
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="text-white bg-[#1c191c]">
-                <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(song.title)}
-                >
-                Copy Title
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>Add to Playlist</DropdownMenuItem>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>
+                Add to Playlist
+              </DropdownMenuSubTrigger>
+              <DropdownMenuSubContent className="text-white bg-[#1c191c] text-xs">
+                <DropdownMenuItem>Playlist 1</DropdownMenuItem>
+                <DropdownMenuItem>Playlist 2</DropdownMenuItem>
+                <DropdownMenuItem>Playlist 3</DropdownMenuItem>
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
                 <DropdownMenuItem>Remove from Playlist</DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
