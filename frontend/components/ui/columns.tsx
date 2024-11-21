@@ -1,16 +1,19 @@
-"use client"
+"use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
-import { Button } from "@/components/ui/button"
+import { MoreHorizontal, Plus, Trash } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSubContent
-} from "@/components/ui/dropdown-menu"
-import { DropdownMenuSub, DropdownMenuSubTrigger } from "@radix-ui/react-dropdown-menu";
+  DropdownMenuSubContent,
+} from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+} from "@radix-ui/react-dropdown-menu";
 
 //To-do change the type
 export const columns: ColumnDef<any>[] = [
@@ -24,15 +27,11 @@ export const columns: ColumnDef<any>[] = [
         >
           #
         </Button>
-      )
+      );
     },
     cell: ({ row }) => {
       const song = row.original;
-      return (
-        <div className="flex items-center justify-center">
-          {song.idx}
-        </div>
-      );
+      return <div className="flex items-center justify-center">{song.idx}</div>;
     },
   },
   {
@@ -45,13 +44,17 @@ export const columns: ColumnDef<any>[] = [
         >
           Title
         </Button>
-      )
+      );
     },
     cell: ({ row }) => {
       const song = row.original;
       return (
         <div className="flex items-center">
-          <img src={song.img} alt={song.title} className="w-[3vw] h-[3vw] mr-2 rounded-lg" />
+          <img
+            src={song.img}
+            alt={song.title}
+            className="w-[3vw] h-[3vw] mr-2 rounded-lg"
+          />
           <span>{song.title}</span>
         </div>
       );
@@ -67,7 +70,7 @@ export const columns: ColumnDef<any>[] = [
         >
           Artist
         </Button>
-      )
+      );
     },
   },
   {
@@ -80,7 +83,7 @@ export const columns: ColumnDef<any>[] = [
         >
           Album
         </Button>
-      )
+      );
     },
   },
   {
@@ -94,19 +97,20 @@ export const columns: ColumnDef<any>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
-      const song = row.original
- 
+      const song = row.original;
+
       return (
         <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                    <span className="sr-only">Open menu</span>
-                    <MoreHorizontal className="h-4 w-4" />
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="text-white bg-[#1c191c]">
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="text-white bg-[#1c191c]">
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>
+                <Plus className="h-4 w-4 mr-3" />
                 Add to Playlist
               </DropdownMenuSubTrigger>
               <DropdownMenuSubContent className="text-white bg-[#1c191c] text-xs">
@@ -115,10 +119,13 @@ export const columns: ColumnDef<any>[] = [
                 <DropdownMenuItem>Playlist 3</DropdownMenuItem>
               </DropdownMenuSubContent>
             </DropdownMenuSub>
-                <DropdownMenuItem>Remove from Playlist</DropdownMenuItem>
-            </DropdownMenuContent>
+            <DropdownMenuItem>
+              <Trash className="h-4 w-4 mr-3" />
+              Remove from Playlist
+            </DropdownMenuItem>
+          </DropdownMenuContent>
         </DropdownMenu>
-      )
+      );
     },
   },
-]
+];
