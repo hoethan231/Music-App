@@ -6,16 +6,14 @@ import { cn } from "@/lib/utils";
 import { IconBrandGoogle } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { auth } from "@/app/firebase/config" 
-import { app } from '@/app/firebase/config';
+import { auth, db } from "@/app/firebase/config" 
 import { useCreateUserWithEmailAndPassword, useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
-import { doc, setDoc, getDocs, addDoc, getFirestore, collection } from "firebase/firestore"; 
-import { signInWithPopup, updateProfile, GoogleAuthProvider } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore"; 
+import { updateProfile } from "firebase/auth";
 import { useAuthState } from 'react-firebase-hooks/auth';
 
 export default function page() {
   const router = useRouter();
-  const db = getFirestore(app);
   const [user] = useAuthState(auth);
   const [createUserWithEmailAndPassword] = useCreateUserWithEmailAndPassword(auth);
   const [signUserWithEmailAndPassword] = useSignInWithEmailAndPassword(auth);

@@ -102,8 +102,7 @@ const PlaylistsPage: React.FC = () => {
                                                 </Card>) :
                                                 (
                                                 <Link
-                                                    //ex: /playlist/bond-gym-music
-                                                    href={`/playlist/${user?.displayName?.split(" ")[1] + "-" + card.name.toLowerCase().replace(" ", "-")}`}
+                                                    href={`/library/playlist/${card.name.toLowerCase().replace(" ", "-")}`}
                                                     key={index}
                                                     >
                                                 <Card>
