@@ -7,6 +7,7 @@ import { IconBrandGoogle } from "@tabler/icons-react";
 import { auth } from "@/app/firebase/config" 
 import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function page() {
 
@@ -66,9 +67,9 @@ export default function page() {
         </button>
         <p className="text-neutral-600 text-sm max-w-sm mt-2 text-center">
           Don't have an account?{" "}
-          <a href="/signup" className="text-[#0f0317] hover:underline">
+          <Link href="/signup" className="text-[#0f0317] hover:underline">
             Sign up
-          </a>
+          </Link>
         </p>
       </form>
     </div>

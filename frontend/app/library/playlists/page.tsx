@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card"
 import {
     Carousel,
@@ -8,15 +8,20 @@ import {
   } from "@/components/ui/carousel"
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from "@/app/firebase/config";
 import { useRouter } from 'next/navigation';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { getFirestore, collection, doc, getDoc } from 'firebase/firestore';
+import { auth } from "@/app/firebase/config";
+import { app } from '@/app/firebase/config';
 
 const PlaylistsPage: React.FC = () => {
     const router = useRouter();
+    const db = getFirestore(app);
     const [user] = useAuthState(auth);
     
     const [currentCard, setCurrentCard] = useState<number>(0);
+    const [cards, setCards] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
 
     if (!user) {
         router.push("/login");
@@ -25,6 +30,28 @@ const PlaylistsPage: React.FC = () => {
     const setIndex = (e: number) => {
         setCurrentCard(e+2);
     }
+
+    const fetchUserPlaylists = async (userId: string) => {
+        const userDoc = await getDoc(doc(db, 'users', userId));
+        if (userDoc.exists()) {
+            const userData = userDoc.data();
+            console.log(userData);
+            return userData.playlists || [];
+        }
+        return [];
+    };
+
+    useEffect(() => {
+        const loadCards = async () => {
+            const fetchedCards = user ? await fetchUserPlaylists(user.uid) : [];
+            const pseudoCards = [{ id: 'pseudo1' }, { id: 'pseudo2' }];
+            const allCards = [...pseudoCards, ...fetchedCards, ...pseudoCards];
+            setCards(allCards);
+            setLoading(false);
+        };
+
+        loadCards();
+    }, [user]);
 
     return (
         <div className='bg-gradient-to-t from-[#1D1E21] to-[#180E18] h-[100vh]'>

@@ -4,14 +4,21 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input-two";
 import { cn } from "@/lib/utils";
 import { IconBrandGoogle } from "@tabler/icons-react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { auth } from "@/app/firebase/config" 
-import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
+import { app } from '@/app/firebase/config';
+import { useCreateUserWithEmailAndPassword, useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
+import { doc, setDoc, addDoc, getFirestore, collection } from "firebase/firestore"; 
 import { signInWithPopup, updateProfile, GoogleAuthProvider } from "firebase/auth";
-import { useRouter } from "next/router";
+import { useAuthState } from 'react-firebase-hooks/auth';
 
 export default function page() {
-  
+  const router = useRouter();
+  const db = getFirestore(app);
+  const [user] = useAuthState(auth);
   const [createUserWithEmailAndPassword] = useCreateUserWithEmailAndPassword(auth);
+  const [signUserWithEmailAndPassword] = useSignInWithEmailAndPassword(auth);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -20,7 +27,6 @@ export default function page() {
       const password = (e.target as HTMLFormElement).password.value;
       const firstName = (e.target as HTMLFormElement).firstname.value;
       const lastName = (e.target as HTMLFormElement).lastname.value;
-      const router = useRouter();
   
       const userCredential = await createUserWithEmailAndPassword(email, password);
       if (userCredential) {
@@ -28,8 +34,32 @@ export default function page() {
         await updateProfile(user, {
           displayName: `${firstName} ${lastName}`,
         });
-        router.push("/login");
-        console.log(user);
+        try {
+          signUserWithEmailAndPassword(email, password).then((userCredential) => {
+            if (userCredential) {
+              const user = userCredential.user;
+              sessionStorage.setItem("user", JSON.stringify(user));
+              router.push("/explore");
+              console.log(user);
+            }
+          });
+          await setDoc(doc(db, "users", user.uid), {
+            first: user.displayName?.split(" ")[0],
+            last: user.displayName?.split(" ")[1],
+            email: user.email,
+            uid: user.uid,
+            createdAt: new Date().toISOString(),
+          });
+          await addDoc(collection(db, "users", user.uid, "playlists"), {
+            name: "Liked Songs",
+            description: "Songs you've liked",
+            songs: [],
+            createdAt: new Date().toISOString(),
+            img: "https://placehold.co/400",
+          });
+        } catch (error) {
+          console.error(error);
+        }
       }
     } catch (error) {
       console.error(error);
@@ -86,9 +116,9 @@ export default function page() {
         </button>
         <p className="text-neutral-600 text-sm max-w-sm mt-2 text-center">
           Already have an account?{" "}
-          <a href="/login" className="text-[#0f0317] hover:underline">
+          <Link href="/login" className="text-[#0f0317] hover:underline">
             Log in
-          </a>
+          </Link>
         </p>
       </form>
     </div>
