@@ -55,14 +55,14 @@ export default function page() {
                 description: "",
                 songs: [],
                 createdAt: new Date().toISOString(),
-                img: "https://placehold.co/400",
+                img: "https://firebasestorage.googleapis.com/v0/b/music-app-db471.firebasestorage.app/o/add-playlist.png?alt=media&token=d1296346-4a91-4213-b7a6-6428b6f36ea2",
               },
               {
                 name: "Liked Songs",
                 description: "Songs you've liked",
                 songs: [],
                 createdAt: new Date().toISOString(),
-                img: "https://placehold.co/400",
+                img: "https://firebasestorage.googleapis.com/v0/b/music-app-db471.firebasestorage.app/o/liked-playlist.png?alt=media&token=51357e62-c1ea-43ea-bd97-fef34fd76487",
               }
             ]
           });
