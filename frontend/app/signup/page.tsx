@@ -9,7 +9,7 @@ import Link from "next/link";
 import { auth } from "@/app/firebase/config" 
 import { app } from '@/app/firebase/config';
 import { useCreateUserWithEmailAndPassword, useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
-import { doc, setDoc, addDoc, getFirestore, collection } from "firebase/firestore"; 
+import { doc, setDoc, getDocs, addDoc, getFirestore, collection } from "firebase/firestore"; 
 import { signInWithPopup, updateProfile, GoogleAuthProvider } from "firebase/auth";
 import { useAuthState } from 'react-firebase-hooks/auth';
 
@@ -49,13 +49,22 @@ export default function page() {
             email: user.email,
             uid: user.uid,
             createdAt: new Date().toISOString(),
-          });
-          await addDoc(collection(db, "users", user.uid, "playlists"), {
-            name: "Liked Songs",
-            description: "Songs you've liked",
-            songs: [],
-            createdAt: new Date().toISOString(),
-            img: "https://placehold.co/400",
+            playlists: [
+              {
+                name: "Add Playlist",
+                description: "",
+                songs: [],
+                createdAt: new Date().toISOString(),
+                img: "https://placehold.co/400",
+              },
+              {
+                name: "Liked Songs",
+                description: "Songs you've liked",
+                songs: [],
+                createdAt: new Date().toISOString(),
+                img: "https://placehold.co/400",
+              }
+            ]
           });
         } catch (error) {
           console.error(error);

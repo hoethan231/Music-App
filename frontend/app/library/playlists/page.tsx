@@ -35,7 +35,6 @@ const PlaylistsPage: React.FC = () => {
         const userDoc = await getDoc(doc(db, 'users', userId));
         if (userDoc.exists()) {
             const userData = userDoc.data();
-            console.log(userData);
             return userData.playlists || [];
         }
         return [];
@@ -44,7 +43,7 @@ const PlaylistsPage: React.FC = () => {
     useEffect(() => {
         const loadCards = async () => {
             const fetchedCards = user ? await fetchUserPlaylists(user.uid) : [];
-            const pseudoCards = [{ id: 'pseudo1' }, { id: 'pseudo2' }];
+            const pseudoCards = [{ id: 'pseudo' }, { id: 'pseudo' }];
             const allCards = [...pseudoCards, ...fetchedCards, ...pseudoCards];
             setCards(allCards);
             setLoading(false);
@@ -66,7 +65,7 @@ const PlaylistsPage: React.FC = () => {
                         currentIndex={(index) => {setIndex(index); return index;}}
                         >
                         <CarouselContent>
-                            {Array.from({ length: 20 }).map((_, index) => (
+                            {cards.map((card, index) => (
                                 <CarouselItem key={index} className="md:basis-1/3 lg:basis-1/5">
                                     <motion.div 
                                         animate={{
@@ -75,15 +74,13 @@ const PlaylistsPage: React.FC = () => {
                                             transition: { duration: 0.15 },
                                         }}
                                         >
-                                        <Link
-                                            href={"google.com"}
-                                            key={index}
+                                        <div
                                             className="relative group block p-2"
                                         >
                                             <AnimatePresence>
                                                 {currentCard === index && (
                                                     <motion.span
-                                                        className="absolute inset-0 h-full w-full bg-transparent block rounded-3xl border-4"
+                                                        className="absolute inset-0 h-full w-full bg-transparent block rounded-3xl border-4 z-[-1]"
                                                         layoutId="hoverBackground"
                                                         initial={{ opacity: 0 }}
                                                         animate={{
@@ -97,12 +94,23 @@ const PlaylistsPage: React.FC = () => {
                                                     />
                                                 )}
                                             </AnimatePresence>
-                                                {index > 1 && index < 18 && <Card>
+                                            {card.id === 'pseudo' ? 
+                                                (<Card className='invisible'>
                                                     <CardContent className="flex aspect-square items-center justify-center p-6">
                                                         <span className="text-3xl text-white font-semibold">{index - 1}</span>
                                                     </CardContent>
-                                                </Card>}
-                                        </Link>
+                                                </Card>) :
+                                                (
+                                                <Link
+                                                    //ex: /playlist/bond-gym-music
+                                                    href={`/playlist/${user?.displayName?.split(" ")[1] + "-" + card.name.toLowerCase().replace(" ", "-")}`}
+                                                    key={index}
+                                                    >
+                                                <Card>
+                                                    <img src={card.img} className='rounded-xl'/>
+                                                </Card>
+                                                </Link>)}
+                                        </div>
                                     </motion.div>
                                 </CarouselItem>
                             ))}

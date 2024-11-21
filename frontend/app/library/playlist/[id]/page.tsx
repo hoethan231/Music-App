@@ -53,30 +53,6 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ params }) => {
         fetchData();
     }, []);
 
-    const tempSongs = [
-        {
-            idx:"1",
-            title:"fouroclock",
-            album:"awesome",
-            date:"october",
-            length:"1:30"
-        },
-        {
-            idx:"2",
-            title:"cats",
-            album:"awesomer",
-            date:"november",
-            length:"2:30"
-        },
-        {
-            idx:"3",
-            title:"trees",
-            album:"disaster",
-            date:"frebuaray",
-            length:"1:33"
-        },
-    ];
-
     return (
         <div className='flex min-h-screen min-w-screen bg-gradient-to-b from-[#180F18] to-[#1D1D20]'>
             <div className="min-h-screen w-1/3 flex justify-center items-center">
