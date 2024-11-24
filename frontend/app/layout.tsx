@@ -3,6 +3,7 @@
 import Navbar from "@/components/ui/navbar";
 import { usePathname } from "next/navigation";
 import { Sidebar } from "@/components/ui/sidebar";
+import { Toaster } from "@/components/ui/toaster";
 import { useState } from "react";
 import { PlayerProvider } from "@/lib/PlayerContext";
 import "./globals.css";
@@ -54,6 +55,7 @@ export default function RootLayout({
             >
               {children}
             </main>
+            <Toaster />
           </div>
         </PlayerProvider>
       </body>

@@ -36,6 +36,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { usePlayer } from '@/lib/PlayerContext';
 import { Skeleton } from "./skeleton";
+import { toast } from "sonner"
 
 import { getFirestore, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { app, auth } from '@/app/firebase/config';
@@ -134,6 +135,7 @@ export function DataTable<TData, TValue>({
             playlists: updatedPlaylists,
           });
           console.log('Song added to playlist');
+          toast.success(`Song added to ${playlistID}`);
         } catch (error) {
           console.error(error);
         }
