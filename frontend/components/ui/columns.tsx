@@ -1,21 +1,8 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal, Plus, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSubContent,
-} from "@/components/ui/dropdown-menu";
-import {
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-} from "@radix-ui/react-dropdown-menu";
 
-//To-do change the type
 export const columns: ColumnDef<any>[] = [
   {
     accessorKey: "idx",
@@ -93,39 +80,5 @@ export const columns: ColumnDef<any>[] = [
   {
     accessorKey: "length",
     header: "Length",
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => {
-      const song = row.original;
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="text-white bg-[#1c191c]">
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger>
-                <Plus className="h-4 w-4 mr-3" />
-                Add to Playlist
-              </DropdownMenuSubTrigger>
-              <DropdownMenuSubContent className="text-white bg-[#1c191c] text-xs">
-                <DropdownMenuItem>Playlist 1</DropdownMenuItem>
-                <DropdownMenuItem>Playlist 2</DropdownMenuItem>
-                <DropdownMenuItem>Playlist 3</DropdownMenuItem>
-              </DropdownMenuSubContent>
-            </DropdownMenuSub>
-            <DropdownMenuItem>
-              <Trash className="h-4 w-4 mr-3" />
-              Remove from Playlist
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
   },
 ];
