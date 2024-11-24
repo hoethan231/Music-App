@@ -20,9 +20,9 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ params }) => {
     const router = useRouter();
     const [user, loading, error] = useAuthState(auth);
     
-    if (!user) {
-        router.push("/login");
-    }
+    // if (!user) {
+    //     router.push("/login");
+    // }
         
     const [album, setAlbum] = useState<{ img: string }>({ img: "" });
     const [tracks, setTracks] = useState<any[]>([]);

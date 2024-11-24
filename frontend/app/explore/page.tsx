@@ -51,9 +51,9 @@ export default function page() {
   const [artists, setArtists] = useState<{ artists: string }[]>([]);
   const [loading, setLoading] = useState(true);
 
-  if (!user) {
-    router.push("/login");
-  }
+  // if (!user) {
+  //   router.push("/login");
+  // }
 
   useEffect(() => {
     const fetchPlaylists = fetch(

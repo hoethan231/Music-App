@@ -23,9 +23,9 @@ const PlaylistsPage: React.FC = () => {
     const [cards, setCards] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
-    if (!user) {
-        router.push("/login");
-    }
+    // if (!user) {
+    //     router.push("/login");
+    // }
 
     const setIndex = (e: number) => {
         setCurrentCard(e+2);
