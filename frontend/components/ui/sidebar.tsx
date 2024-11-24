@@ -1,9 +1,12 @@
 "use client";
-import React, { Dispatch, SetStateAction, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { SidebarHelper, SidebarBody } from "@/components/ui/sidebar-helper";
 import { Playlist } from "@/components/ui/playlist";
 import { cn } from "@/lib/utils";
 import { IconArrowRight, IconSearch } from "@tabler/icons-react";
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import { app, auth } from '@/app/firebase/config';
+import { useAuthState } from 'react-firebase-hooks/auth';
 
 interface SidebarContainerProps {
   open: boolean;
@@ -11,12 +14,39 @@ interface SidebarContainerProps {
 }
 
 export function Sidebar({ open, setOpen }: SidebarContainerProps) {
-  const totalPlaylists = 10;
+  const db = getFirestore(app);
+  const [user] = useAuthState(auth);
+  
   const [searchQuery, setSearchQuery] = useState("");
+  const [playlists, setPlaylists] = useState<
+    {
+      createdAt: string;
+      description: string;
+      img: string;
+      name: string;
+      songs: string[];
+      uid: string;
+    }[]
+  >([]);
+
+  const fetchUserPlaylists = async (userID: string) => {
+    const userDoc = await getDoc(doc(db, 'users', userID));
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      return userData.playlists || [];
+    }
+    return [];
+  };
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
+  
+  useEffect(() => {
+    if (user) {
+      fetchUserPlaylists(user.uid).then((data) => setPlaylists(data));
+    }
+  }, [user]);
 
   return (
     <div className={cn("fixed rounded-md min-h-screen")}>
@@ -37,12 +67,12 @@ export function Sidebar({ open, setOpen }: SidebarContainerProps) {
             )}
             {open && (
               <div className="text-white text-sm -mb-4 mt-2">
-                -ALL ({totalPlaylists})
+                -ALL ({2})
               </div>
             )}
             <div className="mt-8">
               {open && (
-                <Playlist searchQuery={searchQuery} count={totalPlaylists} />
+                <Playlist searchQuery={searchQuery} playlists={playlists} />
               )}
             </div>
           </div>

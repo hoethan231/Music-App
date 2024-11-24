@@ -1,20 +1,29 @@
 import React from "react";
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from "@/app/firebase/config";
 
 interface PlaylistProps {
-  count: number;
+  playlists: {
+    createdAt: string;
+    description: string;
+    img: string;
+    name: string;
+    songs: string[];
+    uid: string;
+  }[];
   searchQuery: string;
 }
 
-export function Playlist({ count, searchQuery }: PlaylistProps) {
-  const playlists = Array.from({ length: count }, (_, idx) => ({
-    label: `Playlist ${idx + 1}`,
-    href: `#playlist-${idx + 1}`,
-    creator: "By Amy Okuma",
-    image:
-      "https://i.pinimg.com/736x/13/4d/af/134dafea7229dffcf5a8710a9bd7c897.jpg",
+export function Playlist({ playlists, searchQuery }: PlaylistProps) {
+  const [user] = useAuthState(auth);
+  const formattedPlaylists = playlists.map((playlist) => ({
+    label: playlist.name,
+    href: `/library/playlist/${playlist.name.toLowerCase().replace(" ", "-")}`,
+    creator: `By ${user?.displayName}`,
+    image: playlist.img,
   }));
 
-  const filteredPlaylists = playlists.filter((playlist) =>
+  const filteredPlaylists = formattedPlaylists.filter((playlist) =>
     playlist.label.toLowerCase().includes((searchQuery || "").toLowerCase())
   );
 
