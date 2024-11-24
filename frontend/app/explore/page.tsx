@@ -20,22 +20,10 @@ export default function page() {
   const router = useRouter();
   const [user] = useAuthState(auth);
   const gradients = [
-    "linear-gradient(to right, #a8edea, #fed6e3)",
-    "linear-gradient(to right, #fbc2eb, #a6c1ee)",
-    "linear-gradient(to right, #fddb92, #d1fdff)",
-    "linear-gradient(to right, #d4fc79, #96e6a1)",
-    "linear-gradient(to right, #a1c4fd, #c2e9fb)",
-    "linear-gradient(to right, #ffecd2, #fcb69f)",
-    "linear-gradient(to right, #ff9a9e, #fecfef)",
-    "linear-gradient(to right, #f6d365, #fda085)",
-    "linear-gradient(to right, #fbc2eb, #a18cd1)",
-    "linear-gradient(to right, #ffdde1, #ee9ca7)",
     "linear-gradient(to right, #a1c4fd, #c2e9fb)",
     "linear-gradient(to right, #d4fc79, #96e6a1)",
     "linear-gradient(to right, #fbc2eb, #a6c1ee)",
     "linear-gradient(to right, #ffecd2, #fcb69f)",
-    "linear-gradient(to right, #fddb92, #d1fdff)",
-    "linear-gradient(to right, #a8edea, #fed6e3)",
     "linear-gradient(to right, #ff9a9e, #fecfef)",
     "linear-gradient(to right, #f6d365, #fda085)",
     "linear-gradient(to right, #fbc2eb, #a18cd1)",

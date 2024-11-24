@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import uni from "@/public/image.webp";
-import Image from 'next/image';
+import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DataTable } from "@/components/ui/data-table";
 import { columns } from '@/components/ui/columns';
@@ -17,14 +16,26 @@ interface PlaylistPageProps {
 const PlaylistPage: React.FC<PlaylistPageProps> = ({ params }) => {
     const token = process.env.NEXT_PUBLIC_ACCESS_TOKEN;
     const { id } = params;
+    const gradients = [
+        "linear-gradient(to right, #a1c4fd, #c2e9fb)",
+        "linear-gradient(to right, #d4fc79, #96e6a1)",
+        "linear-gradient(to right, #fbc2eb, #a6c1ee)",
+        "linear-gradient(to right, #ffecd2, #fcb69f)",
+        "linear-gradient(to right, #ff9a9e, #fecfef)",
+        "linear-gradient(to right, #f6d365, #fda085)",
+        "linear-gradient(to right, #fbc2eb, #a18cd1)",
+        "linear-gradient(to right, #ffdde1, #ee9ca7)",
+    ];
+
     const router = useRouter();
     const [user, loading, error] = useAuthState(auth);
+    const [fetching, setFetching] = useState(true);
     
     // if (!user) {
     //     router.push("/login");
     // }
         
-    const [album, setAlbum] = useState<{ img: string }>({ img: "" });
+    const [album, setAlbum] = useState<{ img: string, name: string, description: string, background: string }>({ img: "", name: "", description: "", background: "" });
     const [tracks, setTracks] = useState<any[]>([]);
 
     const fetchSpotify = async () => {
@@ -36,6 +47,11 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ params }) => {
         })
             .then((res) => res.json())
             .then((data) => {
+                const albumData = {
+                    ...data,
+                    background: gradients[Math.floor(Math.random() * gradients.length)],
+                };
+                setAlbum(albumData);
                 const formattedTracks = data.tracks.items
                 .filter((item: any) => item.track.type === "track")
                 .map((item: any, index: number) => ({
@@ -49,6 +65,7 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ params }) => {
                     length: new Date(item.track.duration_ms).toISOString(),
                 }));
                 setTracks(formattedTracks);
+                setFetching(false);
             });
     };
 
@@ -60,6 +77,7 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ params }) => {
                         setAlbum(doc.data().playlists[1]);
                         setTracks(doc.data().playlists[1].songs);
                     }
+                    setFetching(false);
                 });
         }
     };
@@ -80,25 +98,37 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ params }) => {
             <div className="min-h-screen w-1/3 flex justify-center items-center">
                 <div className="text-white w-[80%] flex justify-center items-center flex-col">
                     {!album || album.img === "" ? (
-                        <Skeleton className='w-[20vw] h-[20vw] rounded-[10%]' />
-                    ) : (
-                        <img src={album.img} alt="" className='rounded-[10%]'/>
-                    )}
-                    {!album ? (
                         <>
+                            <Skeleton className='w-[20vw] h-[20vw] rounded-[10%]' />
                             <Skeleton className='w-[16vw] h-[2.5vw] my-[3vh]' />
                             <Skeleton className='w-[14vw] h-[2vh]' />
                         </>
                     ) : (
-                        <>
-                            <h1 className='p-3 text-[2.5vw] font-bold'>Meow Playlist!!</h1>
-                            <h2 className='text-[1vw]'>Gymming music!!</h2>
-                        </>
+                        album.background ? (
+                            <>
+                                <Card style={{ background: album.background }}>
+                                    <CardContent className="flex w-[20vw] h-[20vw] rounded-[10%] items-center justify-center p-6 bg-[#747474] bg-opacity-20 text-center">
+                                        <span className="text-[4vw] text-[#0E0317] font-semibold">
+                                            {album.name}
+                                        </span>
+                                    </CardContent>
+                                </Card>
+                                <div className="px-[2vw]">
+                                    <h1 className='p-3 text-[1.5vw] text-center'>{album.description}</h1>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <img src={album.img} alt={album.name} className='w-[20vw] h-[20vw] rounded-[10%]' />
+                                <h1 className='p-3 text-[2.5vw] font-bold'>{album.name}</h1>
+                                <h2 className='text-[1vw]'>{album.description}</h2>
+                            </>
+                        )
                     )}
                 </div>
             </div>
             <div className="max-h-screen w-2/3 flex justify-center items-center">
-                <DataTable columns={columns} data={tracks} />
+                <DataTable columns={columns} data={tracks} fetching={fetching}/>
             </div>
         </div>
     );

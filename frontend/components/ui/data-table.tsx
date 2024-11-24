@@ -22,15 +22,18 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { usePlayer } from '@/lib/PlayerContext';
+import { Skeleton } from "./skeleton";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  fetching: boolean
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  fetching,
 }: DataTableProps<TData, TValue>) {
   
   const { playSong } = usePlayer();
@@ -115,11 +118,25 @@ export function DataTable<TData, TValue>({
                   </TableRow>
                 ))
               ) : (
+                fetching ?
+                (
+                  Array.from({ length: 6 }).map((_, idx) => (
+                    <TableRow key={idx} className="w-full h-24">
+                      {columns.map((column) => (
+                        <TableCell key={column.id}>
+                          <Skeleton className="w-full h-8" />
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) :
+                (
                 <TableRow>
                   <TableCell colSpan={columns.length} className="h-24 text-center">
                     Start by Adding Songs to your Playlist!
                   </TableCell>
                 </TableRow>
+                )
               )}
             </TableBody>
           </Table>
