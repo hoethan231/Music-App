@@ -79,6 +79,8 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ params }) => {
         if (user?.uid) {
             await getDoc(doc(db, 'users', user.uid))
                 .then((doc) => {
+                    console.log(doc.data());
+                    console.log(idx);
                     if (doc.exists()) {
                         setAlbum(doc.data().playlists[idx]);
                         setTracks(doc.data().playlists[idx]?.songs || []);
@@ -100,7 +102,7 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ params }) => {
     const getIdx = async () => {
         if (user) {
             const playlists = await fetchUserPlaylists(user.uid);
-            return playlists.findIndex((playlist: PlaylistPageProps) => playlist.name === album.name);
+            return playlists.findIndex((playlist: PlaylistPageProps) => playlist.name.toLowerCase().replace(" ", "-") === id);
         }
         return 1;
     }
@@ -111,7 +113,7 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ params }) => {
             const newPlaylist = {
                 createdAt: new Date().toISOString(),
                 description: "New Playlist",
-                img: "https://firebasestorage.googleapis.com/v0/b/music-app-db471.firebasestorage.app/o/default-playlist.jpg?alt=media&token=4c81b791-83d2-4855-b39e-cb4e7799f3e8",
+                img: "https://firebasestorage.googleapis.com/v0/b/music-app-db471.firebasestorage.app/o/default-playlist.webp?alt=media&token=37143ca6-2abc-4816-8bdc-0c92c5a38d8d",
                 name: `Playlist ${playlists.length - 1}`,
                 songs: [],
                 uid: user.uid,
