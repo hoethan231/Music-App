@@ -113,10 +113,11 @@ export function DataTable<TData, TValue>({
     console.log(playlists);
     setUpdating(true);
     if (user) {
+      const playlistIdx = playlists.findIndex((playlist) => playlist.name === playlistID);
       const song = {
         ...data[(idx as unknown as number)],
+        idx: playlists[playlistIdx].songs.length + 1
       }
-      const playlistIdx = playlists.findIndex((playlist) => playlist.name === playlistID);
       if (playlistIdx !== -1) {
         const updatedPlaylists = playlists.map((playlist, index) => {
           if (index === playlistIdx) {
