@@ -20,7 +20,7 @@ import { DataTable } from "@/components/ui/data-table";
 import { columns } from '@/components/ui/columns';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, db } from "@/app/firebase/config";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, setDoc } from "firebase/firestore";
 import { useRouter } from 'next/navigation';
 
 interface PlaylistPageProps {
@@ -93,8 +93,6 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ params }) => {
         if (user?.uid) {
             await getDoc(doc(db, 'users', user.uid))
                 .then((doc) => {
-                    console.log(doc.data());
-                    console.log(idx);
                     if (doc.exists()) {
                         setAlbum(doc.data().playlists[idx]);
                         setTracks(doc.data().playlists[idx]?.songs || []);
@@ -141,6 +139,27 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ params }) => {
             } catch (error) {
                 console.error(error);
             }
+        }
+    };
+
+    const handleChangesSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (user) {
+            const name = (e.target as HTMLFormElement).name.value;
+            const description = (e.target as HTMLFormElement).description.value;
+            const playlists = await fetchUserPlaylists(user.uid);
+            const idx = playlists.findIndex((playlist: PlaylistPageProps) => playlist.name.toLowerCase().replace(" ", "-") === id);
+            playlists[idx] = {
+                ...playlists[idx],
+                name: name,
+                description: description,
+            }
+            await updateDoc(doc(db, 'users', user.uid), {
+                playlists: playlists,
+            })
+            .catch((error) => {
+                console.error(error);
+            });
         }
     };
 
@@ -196,38 +215,42 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ params }) => {
                                         </Button>
                                     </DialogTrigger>
                                     <DialogContent className="sm:max-w-[425px]">
-                                        <DialogHeader>
-                                            <DialogTitle>Edit Playlist</DialogTitle>
-                                            <DialogDescription>
-                                                Make changes to your playlist here. Click save when you're done.
-                                            </DialogDescription>
-                                        </DialogHeader>
-                                        <div className="grid gap-4 py-4">
-                                            <div className="grid grid-cols-4 items-center gap-4">
-                                                <Label htmlFor="name" className="text-right text-[#e2e2e2]">
-                                                    Name
-                                                </Label>
-                                                <Input
-                                                    id="name"
-                                                    placeholder={album.name}
-                                                    className="col-span-3 hover:bg-[#352f3e]"
-                                                />
+                                        <form onSubmit={handleChangesSubmit}>
+                                            <DialogHeader>
+                                                <DialogTitle>Edit Playlist</DialogTitle>
+                                                <DialogDescription>
+                                                    Make changes to your playlist here. Click save when you're done.
+                                                </DialogDescription>
+                                            </DialogHeader>
+                                            <div className="grid gap-4 py-4">
+                                                <div className="grid grid-cols-4 items-center gap-4">
+                                                    <Label htmlFor="name" className="text-right text-[#e2e2e2]">
+                                                        Name
+                                                    </Label>
+                                                    <Input
+                                                        id="name"
+                                                        placeholder={album.name}
+                                                        className="col-span-3 hover:bg-[#352f3e]"
+                                                    />
+                                                </div>
+                                                <div className="grid grid-cols-4 items-center gap-4">
+                                                    <Label htmlFor="description" className="text-right text-[#e2e2e2]">
+                                                        Description
+                                                    </Label>
+                                                    <Input
+                                                        id="description"
+                                                        placeholder={album.description}
+                                                        className="col-span-3 hover:bg-[#352f3e]"
+                                                    />
+                                                </div>
+                                                <FileUpload />
                                             </div>
-                                            <div className="grid grid-cols-4 items-center gap-4">
-                                                <Label htmlFor="description" className="text-right text-[#e2e2e2]">
-                                                    Description
-                                                </Label>
-                                                <Input
-                                                    id="description"
-                                                    placeholder={album.description}
-                                                    className="col-span-3 hover:bg-[#352f3e]"
-                                                />
-                                            </div>
-                                            <FileUpload />
-                                        </div>
-                                        <DialogFooter>
-                                            <Button type="submit" variant={"outline"} className="hover:bg-[#352f3e]">Save changes</Button>
-                                        </DialogFooter>
+                                            <DialogFooter>
+                                                <DialogTrigger>
+                                                    <Button type="submit" variant={"outline"} className="hover:bg-[#352f3e]">Save changes</Button>
+                                                </DialogTrigger>
+                                            </DialogFooter>
+                                        </form>
                                     </DialogContent>
                                 </Dialog>
                             </>
