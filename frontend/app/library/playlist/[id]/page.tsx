@@ -1,5 +1,19 @@
 "use client";
+
 import React, { useState, useEffect } from 'react';
+import { Button } from "@/components/ui/button"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { FileUpload } from "@/components/ui/file-upload";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DataTable } from "@/components/ui/data-table";
@@ -174,8 +188,48 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ params }) => {
                         ) : (
                             <>
                                 <img src={album.img} alt={album.name} className='w-[20vw] h-[20vw] rounded-[10%]' />
-                                <h1 className='p-3 text-[2.5vw] font-bold'>{album.name}</h1>
-                                <h2 className='text-[1vw]'>{album.description}</h2>
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                        <Button variant={"ghost"} className="flex justify-center flex-col h-[10vh] hover:text-stone-400 text-white">
+                                            <h1 className='pb-6 text-[2.5vw] font-bold'>{album.name}</h1>
+                                            <h2 className='text-[1vw]'>{album.description}</h2>
+                                        </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="sm:max-w-[425px]">
+                                        <DialogHeader>
+                                            <DialogTitle>Edit Playlist</DialogTitle>
+                                            <DialogDescription>
+                                                Make changes to your playlist here. Click save when you're done.
+                                            </DialogDescription>
+                                        </DialogHeader>
+                                        <div className="grid gap-4 py-4">
+                                            <div className="grid grid-cols-4 items-center gap-4">
+                                                <Label htmlFor="name" className="text-right text-[#e2e2e2]">
+                                                    Name
+                                                </Label>
+                                                <Input
+                                                    id="name"
+                                                    placeholder={album.name}
+                                                    className="col-span-3 hover:bg-[#352f3e]"
+                                                />
+                                            </div>
+                                            <div className="grid grid-cols-4 items-center gap-4">
+                                                <Label htmlFor="description" className="text-right text-[#e2e2e2]">
+                                                    Description
+                                                </Label>
+                                                <Input
+                                                    id="description"
+                                                    placeholder={album.description}
+                                                    className="col-span-3 hover:bg-[#352f3e]"
+                                                />
+                                            </div>
+                                            <FileUpload />
+                                        </div>
+                                        <DialogFooter>
+                                            <Button type="submit" variant={"outline"} className="hover:bg-[#352f3e]">Save changes</Button>
+                                        </DialogFooter>
+                                    </DialogContent>
+                                </Dialog>
                             </>
                         )
                     )}
