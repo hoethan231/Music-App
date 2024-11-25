@@ -57,6 +57,7 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ params }) => {
 
     const [album, setAlbum] = useState<{ img: string, name: string, description: string, background: string }>({ img: "", name: "", description: "", background: "" });
     const [tracks, setTracks] = useState<any[]>([]);
+    const [isOpen, setIsOpen] = useState(false);
 
     const fetchSpotify = async () => {
         fetch(`https://api.spotify.com/v1/playlists/${id}`, {
@@ -135,7 +136,10 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ params }) => {
             try {
                 await updateDoc(doc(db, 'users', user.uid), {
                     playlists: [...playlists, newPlaylist],
-                });
+                })
+                .then(() => {
+                    router.push(`/library/playlist/${newPlaylist.name.toLowerCase().replace(" ", "-")}`);
+                })
             } catch (error) {
                 console.error(error);
             }
@@ -145,23 +149,33 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ params }) => {
     const handleChangesSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (user) {
-            const name = (e.target as HTMLFormElement).name.value;
-            const description = (e.target as HTMLFormElement).description.value;
-            const playlists = await fetchUserPlaylists(user.uid);
-            const idx = playlists.findIndex((playlist: PlaylistPageProps) => playlist.name.toLowerCase().replace(" ", "-") === id);
-            playlists[idx] = {
-                ...playlists[idx],
-                name: name,
-                description: description,
-            }
-            await updateDoc(doc(db, 'users', user.uid), {
-                playlists: playlists,
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+          const form = e.currentTarget;
+          const name = form.elements.namedItem('name') as HTMLInputElement;
+          const description = form.elements.namedItem('description') as HTMLInputElement;
+          
+          const playlists = await fetchUserPlaylists(user.uid);
+          const idx = playlists.findIndex((playlist: PlaylistPageProps) => 
+            playlist.name.toLowerCase().replace(" ", "-") === id
+          );
+          
+          playlists[idx] = {
+            ...playlists[idx],
+            name: name.value,
+            description: description.value,
+          };
+           await updateDoc(doc(db, 'users', user.uid), {
+             playlists: playlists,
+           })
+           .then(() => {
+             setAlbum(playlists[idx]);
+             setIsOpen(false);
+             router.push(`/library/playlist/${playlists[idx].name.toLowerCase().replace(" ", "-")}`);
+           })
+           .catch((error) => {
+             console.error(error);
+           });
         }
-    };
+      };
 
     useEffect(() => {
         if (!loading && user) {
@@ -207,7 +221,7 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ params }) => {
                         ) : (
                             <>
                                 <img src={album.img} alt={album.name} className='w-[20vw] h-[20vw] rounded-[10%]' />
-                                <Dialog>
+                                <Dialog open={isOpen} onOpenChange={setIsOpen}>
                                     <DialogTrigger asChild>
                                         <Button variant={"ghost"} className="flex justify-center flex-col h-[10vh] hover:text-stone-400 text-white">
                                             <h1 className='pb-6 text-[2.5vw] font-bold'>{album.name}</h1>
@@ -229,7 +243,8 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ params }) => {
                                                     </Label>
                                                     <Input
                                                         id="name"
-                                                        placeholder={album.name}
+                                                        name="name"
+                                                        defaultValue={album.name}
                                                         className="col-span-3 hover:bg-[#352f3e]"
                                                     />
                                                 </div>
@@ -239,16 +254,15 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ params }) => {
                                                     </Label>
                                                     <Input
                                                         id="description"
-                                                        placeholder={album.description}
+                                                        name="description"
+                                                        defaultValue={album.description}
                                                         className="col-span-3 hover:bg-[#352f3e]"
                                                     />
                                                 </div>
                                                 <FileUpload />
                                             </div>
                                             <DialogFooter>
-                                                <DialogTrigger>
-                                                    <Button type="submit" variant={"outline"} className="hover:bg-[#352f3e]">Save changes</Button>
-                                                </DialogTrigger>
+                                                <Button type="submit" variant={"outline"} className="hover:bg-[#352f3e]">Save changes</Button>
                                             </DialogFooter>
                                         </form>
                                     </DialogContent>
