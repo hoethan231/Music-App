@@ -13,13 +13,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from "next/navigation";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "@/app/firebase/config";
-import { IconSearch } from "@tabler/icons-react";
 import { Track, Album, Artist, Playlist } from "@/app/explore/interface";
+import { usePlayer } from '@/lib/PlayerContext';
 
 export default function page() {
   const token = process.env.NEXT_PUBLIC_ACCESS_TOKEN;
   const router = useRouter();
   const [user] = useAuthState(auth);
+  const { playSong } = usePlayer();
+  const defaultPFP = "https://firebasestorage.googleapis.com/v0/b/music-app-db471.firebasestorage.app/o/default-pfp.png?alt=media&token=647a3cc7-1c60-465f-921e-0b0793cbdb95"
   const gradients = [
     "linear-gradient(to right, #a1c4fd, #c2e9fb)",
     "linear-gradient(to right, #d4fc79, #96e6a1)",
@@ -42,7 +44,9 @@ export default function page() {
 
   //Exploring Playlists and Artists
   const [playlists, setPlaylists] = useState<{ playlists: Playlist }[]>([]);
-  const [artistsCarousel, setArtistsCarousel] = useState<{ artistsCarousel: string }[]>([]);
+  const [artistsCarousel, setArtistsCarousel] = useState<
+    { artistsCarousel: string }[]
+  >([]);
   const [loading, setLoading] = useState(true);
 
   // if (!user) {
@@ -86,6 +90,10 @@ export default function page() {
     );
   }, []);
 
+  const handleRowClick = async (songID: string) => {
+    playSong(`spotify:track:${songID}`);
+  };
+
   const fetchSearch = async (query: string) => {
     await fetch(
       `https://api.spotify.com/v1/search?q=${query}&type=album%2Cartist%2Ctrack&limit=20`,
@@ -120,7 +128,9 @@ export default function page() {
   return (
     <div className="pl-[2vw]">
       <div className="relative px-4 mt-10 mx-16">
-        <IconSearch className="w-5 h-5 text-white absolute left-7 top-1/2 transform -translate-y-1/2" />
+        <h1 className="text-8xl font-bold text-white pb-10">
+          Hey {!loading && (user?.displayName?.split(" ")[0]+"!" || "there!")}
+        </h1>
         <form onSubmit={handleSearchSubmit}>
           <input
             type="text"
@@ -131,23 +141,27 @@ export default function page() {
           />
         </form>
         {open && (
-          <div className="mt-6 px-20 rounded-md py-10 text-white w-full">
+          <div className="mt-6 rounded-md py-10 text-white w-full">
             <div className="flex">
-              <div className="mr-20 w-[50%] bg-[#2E252E] p-4 rounded-md">
+              <div className="mr-6 w-[50%] bg-[#2E252E] p-4 rounded-md">
                 <h1 className="font-bold text-3xl text-left">Songs</h1>
                 <div className="bg-white h-[1px] w-full my-2"></div>
                 <div className="overflow-y-auto max-h-[calc(5*3.25vw)]">
                   <div className="space-y-1">
                     {songs.map((song) => (
-                      <div className="flex items-center gap-4 hover:bg-[#413441] transition-transform duration-300 ease-in-out hover:translate-x-3 px-3 py-1 rounded-md">
+                      <div
+                      onClick={() => handleRowClick(song.id)} 
+                      className="flex items-center gap-4 hover:bg-[#413441] transition-transform duration-300 ease-in-out hover:translate-x-3 px-3 py-1 rounded-md">
                         <img
-                          src={song.album.images[0].url}
+                          src={song.album.images[0].url || defaultPFP}
                           alt=""
                           className="w-[3.5vw] rounded-sm"
                         />
                         <div>
                           <p className="text-xl font-medium">{song.name}</p>
-                          <p className="text-lg text-gray-300">{song.artists[0].name}</p>
+                          <p className="text-lg text-gray-300">
+                            {song.artists[0].name}
+                          </p>
                         </div>
                       </div>
                     ))}
@@ -162,13 +176,15 @@ export default function page() {
                     {albums.map((album) => (
                       <div className="flex items-center gap-4 hover:bg-[#413441] transition-transform duration-300 ease-in-out hover:translate-x-3 px-3 py-1 rounded-md">
                         <img
-                          src={album.images[0].url}
+                          src={album.images[0].url || defaultPFP}
                           alt=""
                           className="w-[3.5vw] rounded-sm"
                         />
                         <div>
                           <p className="text-xl font-medium">{album.name}</p>
-                          <p className="text-lg text-gray-300">{album.artists[0].name}</p>
+                          <p className="text-lg text-gray-300">
+                            {album.artists[0].name}
+                          </p>
                         </div>
                       </div>
                     ))}
@@ -179,11 +195,11 @@ export default function page() {
             <div className="mt-5 bg-[#2E252E] p-4 rounded-md">
               <h1 className="font-bold text-3xl">Artists</h1>
               <div className="bg-white h-[1px] w-full my-2"></div>
-              <div className="flex space-x-10 overflow-x-auto max-w-[calc(6*10vw)]">
-                {artists.slice(0,6).map((artist) => (
+              <div className="flex justify-between space-x-10 px-10">
+                {artists.slice(0, 7).map((artist) => (
                   <div className="mt-2 hover:bg-[#413441] px-3 py-2 rounded-md w-[10vw]">
                     <img
-                      src={artist.images[0].url}
+                      src={artist.images[0]?.url || defaultPFP}
                       alt=""
                       className="rounded-full mx-auto w-[8vw] h-[8vw]"
                     />
