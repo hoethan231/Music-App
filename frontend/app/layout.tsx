@@ -25,7 +25,7 @@ export const SidebarWrapper = ({
 }) => {
   const pathname = usePathname();
   const isBadPage =
-    pathname === "/" || pathname === "/login" || pathname === "/signup" || pathname.startsWith("/library");
+    pathname === "/" || pathname === "/login" || pathname === "/signup" || pathname.startsWith("/library") || pathname.startsWith("/artist");
 
   if (isBadPage) return null;
   return <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />;

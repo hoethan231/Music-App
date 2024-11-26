@@ -99,7 +99,6 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ params }) => {
                     background: gradients[Math.floor(Math.random() * gradients.length)],
                 };
                 setAlbum(albumData);
-                console.log(data.tracks.items);
                 const formattedTracks = data.tracks.items
                     .filter((item: any) => item.track.type === "track")
                     .map((item: any, index: number) => ({

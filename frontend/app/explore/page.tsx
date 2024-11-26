@@ -197,7 +197,10 @@ export default function page() {
               <div className="bg-white h-[1px] w-full my-2"></div>
               <div className="flex justify-between space-x-10 px-10">
                 {artists.slice(0, 7).map((artist) => (
-                  <div className="mt-2 hover:bg-[#413441] px-3 py-2 rounded-md w-[10vw]">
+                  <div 
+                  key={artist.id}
+                  onClick={() => router.push(`/artist/${artist.id}`)}
+                  className="mt-2 hover:bg-[#413441] px-3 py-2 rounded-md w-[10vw]">
                     <img
                       src={artist.images[0]?.url || defaultPFP}
                       alt=""

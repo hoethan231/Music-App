@@ -38,7 +38,6 @@ export default function page() {
               const user = userCredential.user;
               sessionStorage.setItem("user", JSON.stringify(user));
               router.push("/explore");
-              console.log(user);
             }
           });
           await setDoc(doc(db, "users", user.uid), {
