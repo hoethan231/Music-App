@@ -110,7 +110,6 @@ export function DataTable<TData, TValue>({
   };
 
   const handleAddToPlaylist = async (playlistID: string, idx: string) => {
-    console.log(playlists);
     setUpdating(true);
     if (user) {
       const playlistIdx = playlists.findIndex((playlist) => playlist.name === playlistID);
@@ -200,25 +199,38 @@ export function DataTable<TData, TValue>({
                     ))}
                     <TableCell>
                       <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
+                        <DropdownMenuTrigger
+                          asChild
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <Button variant="ghost" className="h-8 w-8 p-0">
                             <span className="sr-only">Open menu</span>
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="text-white bg-[#1c191c]">
+                        <DropdownMenuContent
+                          align="end"
+                          className="text-white bg-[#1c191c]"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <DropdownMenuSub>
-                            <DropdownMenuSubTrigger>
+                            <DropdownMenuSubTrigger onClick={(e) => e.stopPropagation()}>
                               <Plus className="h-4 w-4 mr-3" />
                               Add to Playlist
                             </DropdownMenuSubTrigger>
-                            <DropdownMenuSubContent className="text-white bg-[#1c191c] text-xs">
+                            <DropdownMenuSubContent
+                              className="text-white bg-[#1c191c] text-xs"
+                              onClick={(e) => e.stopPropagation()}
+                            >
                               {!updating && Array.isArray(playlists) && playlists.map((playlist, idx) => {
                                 if (idx !== 0) {
                                   return (
                                     <DropdownMenuItem
                                       key={idx}
-                                      onClick={() => handleAddToPlaylist(playlist.name, row.id)}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleAddToPlaylist(playlist.name, row.id);
+                                      }}
                                     >
                                       {playlist.name}
                                     </DropdownMenuItem>
@@ -228,7 +240,7 @@ export function DataTable<TData, TValue>({
                               })}
                             </DropdownMenuSubContent>
                           </DropdownMenuSub>
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
                             <Trash className="h-4 w-4 mr-3" />
                             Remove from Playlist
                           </DropdownMenuItem>

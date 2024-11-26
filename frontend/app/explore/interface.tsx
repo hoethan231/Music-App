@@ -69,3 +69,12 @@ export interface Playlist {
     id: any;
     name: string;
 }
+
+export interface dbPlaylists {
+    createdAt: string;
+    description: string;
+    img: string;
+    name: string;
+    songs: TData[];
+    uid: string;
+}
