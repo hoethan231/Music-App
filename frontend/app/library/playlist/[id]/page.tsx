@@ -60,6 +60,31 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ params }) => {
     const [tracks, setTracks] = useState<any[]>([]);
     const [isOpen, setIsOpen] = useState(false);
 
+    function formatDuration(milliseconds: string) {
+        const totalSeconds = Math.floor(Number(milliseconds) / 1000);
+
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+
+        if (hours > 0) {
+            return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        } else {
+            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+    }
+
+    function formatDate(date: Date) {
+
+        const dateObj = date instanceof Date ? date : new Date(date);
+
+        if (isNaN(dateObj.getTime())) {
+            return 'Invalid Date';
+        }
+
+        return dateObj.toLocaleDateString("en-US", { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+
     const fetchSpotify = async () => {
         fetch(`https://api.spotify.com/v1/playlists/${id}`, {
             method: "GET",
@@ -74,6 +99,7 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ params }) => {
                     background: gradients[Math.floor(Math.random() * gradients.length)],
                 };
                 setAlbum(albumData);
+                console.log(data.tracks.items);
                 const formattedTracks = data.tracks.items
                     .filter((item: any) => item.track.type === "track")
                     .map((item: any, index: number) => ({
@@ -83,8 +109,8 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ params }) => {
                         artist: item.track.artists[0].name,
                         album: item.track.album.name,
                         img: item.track.album.images[1].url,
-                        date: item.added_at.substring(0, 10),
-                        length: new Date(item.track.duration_ms).toISOString(),
+                        date: formatDate(item.added_at.substring(0, 10)),
+                        length: formatDuration(item.track.duration_ms),
                     }));
                 setTracks(formattedTracks);
                 setFetching(false);
