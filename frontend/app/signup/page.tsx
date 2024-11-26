@@ -47,6 +47,7 @@ export default function page() {
             email: user.email,
             uid: user.uid,
             createdAt: new Date().toISOString(),
+            pfp: "https://firebasestorage.googleapis.com/v0/b/music-app-db471.firebasestorage.app/o/default-pfp.png?alt=media&token=647a3cc7-1c60-465f-921e-0b0793cbdb95",
             playlists: [
               {
                 name: "Add Playlist",
