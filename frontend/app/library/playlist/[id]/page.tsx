@@ -248,7 +248,7 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ params }) => {
                                 <img src={album.img} alt={album.name} className='w-[20vw] h-[20vw] rounded-[10%]' />
                                 <Dialog open={isOpen} onOpenChange={setIsOpen}>
                                     <DialogTrigger asChild>
-                                        <Button variant={"ghost"} className="flex justify-center flex-col h-[10vh] hover:text-stone-400 text-white">
+                                        <Button variant={"ghost"} className="flex justify-center flex-col h-[10vh] hover:text-stone-400 text-white pt-8">
                                             <h1 className='pb-6 text-[2.5vw] font-bold'>{album.name}</h1>
                                             <h2 className='text-[1vw]'>{album.description}</h2>
                                         </Button>

@@ -61,6 +61,7 @@ export default function page() {
                 songs: [],
                 createdAt: new Date().toISOString(),
                 img: "https://firebasestorage.googleapis.com/v0/b/music-app-db471.firebasestorage.app/o/liked-playlist.png?alt=media&token=51357e62-c1ea-43ea-bd97-fef34fd76487",
+                background: "-1",
               }
             ]
           });
