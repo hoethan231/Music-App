@@ -4,7 +4,6 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, db, storage } from "@/app/firebase/config";
 import { doc, getDoc, updateDoc, setDoc } from "firebase/firestore";
 import { User } from "@/app/profile/interface";
-import { UserMetadata } from "firebase/auth";
 
 export default function page() {
   const [user] = useAuthState(auth);
@@ -17,7 +16,6 @@ export default function page() {
         await getDoc(doc(db, 'users', user.uid))
           .then((doc) => {
             if (doc.exists()) {
-              console.log(doc.data() as User);
               setUserData(doc.data() as User);
             }
             setFetching(false);
@@ -69,7 +67,7 @@ export default function page() {
       </div>
       <div className="flex justify-between px-36">
         <div className="text-center">
-          <h1 className="text-[3.3vw] font-bold">46</h1>
+          <h1 className="text-[3.3vw] font-bold">0</h1>
           <p className="font-semibold text-xl">minutes listened</p>
         </div>
         <div className="text-center">
@@ -85,7 +83,7 @@ export default function page() {
           <p className="font-semibold text-xl">songs reviewed</p>
         </div>
         <div className="text-center">
-          <h1 className="text-[3.3vw] font-bold">K-Pop</h1>
+          <h1 className="text-[3.3vw] font-bold">Pop</h1>
           <p className="font-semibold text-xl">#1 genre</p>
         </div>
       </div>
@@ -166,7 +164,7 @@ export default function page() {
         <span className="mr-10 text-2xl">Favorites</span>
         <div className="flex-1 h-[1px] bg-white"></div>
       </div>
-      <div className="flex justify-between px-20">
+      <div className="flex px-20">
         <div>
           <p className="font-semibold text-xl">Favorite songs</p>
           <div className="flex space-x-10 p-4">
@@ -196,9 +194,9 @@ export default function page() {
           </div>
         </div>
         <div>
-          <div>
+          <div className="w-[50vw]">
             <p className="font-semibold text-xl">Favorite artists</p>
-            <div className="flex space-x-10 p-4">
+            {/* <div className="flex space-x-10 p-4">
               <div>
                 <img
                   src="https://i.pinimg.com/736x/13/4d/af/134dafea7229dffcf5a8710a9bd7c897.jpg"
@@ -209,6 +207,9 @@ export default function page() {
                   artist name
                 </p>
               </div>
+            </div> */}
+            <div className="flex justify-center items-center h-full">
+              <p className="text-xl text-gray-500">No favorited artists!</p>
             </div>
           </div>
         </div>
