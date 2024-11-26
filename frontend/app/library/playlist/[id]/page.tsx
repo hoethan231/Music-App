@@ -19,8 +19,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { DataTable } from "@/components/ui/data-table";
 import { columns } from '@/components/ui/columns';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth, db } from "@/app/firebase/config";
+import { auth, db, storage } from "@/app/firebase/config";
 import { doc, getDoc, updateDoc, setDoc } from "firebase/firestore";
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useRouter } from 'next/navigation';
 
 interface PlaylistPageProps {
@@ -137,9 +138,9 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ params }) => {
                 await updateDoc(doc(db, 'users', user.uid), {
                     playlists: [...playlists, newPlaylist],
                 })
-                .then(() => {
-                    router.push(`/library/playlist/${newPlaylist.name.toLowerCase().replace(" ", "-")}`);
-                })
+                    .then(() => {
+                        router.push(`/library/playlist/${newPlaylist.name.toLowerCase().replace(" ", "-")}`);
+                    })
             } catch (error) {
                 console.error(error);
             }
@@ -149,33 +150,57 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ params }) => {
     const handleChangesSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (user) {
-          const form = e.currentTarget;
-          const name = form.elements.namedItem('name') as HTMLInputElement;
-          const description = form.elements.namedItem('description') as HTMLInputElement;
-          
-          const playlists = await fetchUserPlaylists(user.uid);
-          const idx = playlists.findIndex((playlist: PlaylistPageProps) => 
-            playlist.name.toLowerCase().replace(" ", "-") === id
-          );
-          
-          playlists[idx] = {
-            ...playlists[idx],
-            name: name.value,
-            description: description.value,
-          };
-           await updateDoc(doc(db, 'users', user.uid), {
-             playlists: playlists,
-           })
-           .then(() => {
-             setAlbum(playlists[idx]);
-             setIsOpen(false);
-             router.push(`/library/playlist/${playlists[idx].name.toLowerCase().replace(" ", "-")}`);
-           })
-           .catch((error) => {
-             console.error(error);
-           });
+            const form = e.currentTarget;
+            const name = form.elements.namedItem('name') as HTMLInputElement;
+            const description = form.elements.namedItem('description') as HTMLInputElement;
+
+            const playlists = await fetchUserPlaylists(user.uid);
+            const idx = playlists.findIndex((playlist: PlaylistPageProps) =>
+                playlist.name.toLowerCase().replace(" ", "-") === id
+            );
+
+            playlists[idx] = {
+                ...playlists[idx],
+                name: name.value,
+                description: description.value,
+            };
+            await updateDoc(doc(db, 'users', user.uid), {
+                playlists: playlists,
+            })
+                .then(() => {
+                    setAlbum(playlists[idx]);
+                    setIsOpen(false);
+                    router.push(`/library/playlist/${playlists[idx].name.toLowerCase().replace(" ", "-")}`);
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
         }
-      };
+    };
+
+    const handleFileUpload = async (files: File[]) => {
+        if (user) {
+            const playlists = await fetchUserPlaylists(user.uid);
+            const idx = playlists.findIndex((playlist: PlaylistPageProps) => playlist.name.toLowerCase().replace(" ", "-") === id);
+            const storageRef = ref(storage, `users/${user.uid}/${playlists[idx].name}.webp`);
+            const uploadTask = await uploadBytes(storageRef, files[0]);
+            const downloadURL = await getDownloadURL(uploadTask.ref);
+            playlists[idx] = {
+                ...playlists[idx],
+                img: downloadURL,
+            };
+            await updateDoc(doc(db, 'users', user.uid), {
+                playlists: playlists,
+            })
+                .then(() => {
+                    setAlbum(playlists[idx]);
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+
+        }
+    };
 
     useEffect(() => {
         if (!loading && user) {
@@ -259,7 +284,7 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ params }) => {
                                                         className="col-span-3 hover:bg-[#352f3e]"
                                                     />
                                                 </div>
-                                                <FileUpload />
+                                                <FileUpload onChange={handleFileUpload} />
                                             </div>
                                             <DialogFooter>
                                                 <Button type="submit" variant={"outline"} className="hover:bg-[#352f3e]">Save changes</Button>
