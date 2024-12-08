@@ -1,8 +1,16 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Welcome to GrooveBox!
+
+GrooveBox is a cutting-edge music app that allows users to create and manage their own playlists, discover new music, and connect with friends who share similar tastes. Our app is designed to provide a seamless and enjoyable music experience!
 
 ## Getting Started
 
-First, run the development server:
+First, checkout [Spotify's documentation](https://developer.spotify.com/documentation/web-playback-sdk/tutorials/getting-started) to get your own spotify API key and add it to your .env file
+```
+NEXT_PUBLIC_ACCESS_TOKEN=YOUR_KEY
+```
+
+
+Next, run the development server:
 
 ```bash
 npm run dev
@@ -16,21 +24,17 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Run with DockerFile
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+If you want to run without installing dependencies, try our dockerfile! Just make sure you have docker installed.
+```
+docker build -t GrooveBox .
+docker run -p 3000:3000 GrooveBox
+```
 
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Check out the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
